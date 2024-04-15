@@ -95,7 +95,7 @@ public class thongtincanhan extends JFrame {
 		panel_2.add(btnXa);
 		
 		JButton btnLu = new JButton("Lưu");
-		btnLu.setForeground(new Color(0, 255, 255));
+		btnLu.setForeground(new Color(0, 0, 255));
 		btnLu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
