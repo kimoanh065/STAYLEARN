@@ -6,6 +6,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import control.WriteTextFile;
+
 import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JTextField;
@@ -242,5 +244,22 @@ public class thongtincanhan extends JFrame {
 	    URL iconURL_luu = thongtincanhan.class.getResource("luu.png");
 	    ImageIcon icon4 = new ImageIcon(iconURL_luu);
 	    btnLu.setIcon(icon4);
+	    
+	    btnLu.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent e) {
+	            String studentID = textField.getText();
+	            String fullName = textField_1.getText();
+	            String gender = comboBox.getSelectedItem().toString();
+	            String dob = textField_2.getText();
+	            String phoneNumber = textField_3.getText();
+	            String email = textField_4.getText();
+	            String address = textField_5.getText();
+	            String parentName = textField_6.getText();
+	            String parentPhoneNumber = textField_7.getText();
+	            String joinDate = textField_9.getText();
+
+	            WriteTextFile.writeToFile(studentID, fullName, gender, dob, phoneNumber, email, address, parentName, parentPhoneNumber, joinDate);
+	        }
+	    });
 	}
 }

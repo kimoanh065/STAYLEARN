@@ -6,9 +6,14 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import control.WriteTextFile;
+
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
 import java.awt.Font;
+import java.awt.Image;
+
 import javax.swing.ImageIcon;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -20,6 +25,8 @@ import java.net.URL;
 
 import javax.swing.UIManager;
 import java.awt.SystemColor;
+import java.awt.Toolkit;
+
 import javax.swing.SwingConstants;
 import javax.swing.JButton;
 import javax.swing.JTextField;
@@ -40,8 +47,12 @@ public class menu extends JFrame {
 		Container con = getContentPane();
 		getContentPane().setLayout(null);
 		
+		URL url_hhd = menu.class.getResource("logo.png");
+		Image img = Toolkit.getDefaultToolkit().createImage(url_hhd);
+		this.setIconImage(img);
+		
 		JPanel panel = new JPanel();
-		panel.setBackground(new Color(255, 250, 250));
+		panel.setBackground(new Color(192, 192, 192));
 		panel.setBounds(0, 0, 1280, 750);
 		getContentPane().add(panel);
 		panel.setLayout(null);
@@ -198,7 +209,7 @@ public class menu extends JFrame {
 		panel_6.setLayout(null);
 		
 		JPanel panel_1 = new JPanel();
-		panel_1.setBackground(new Color(0, 255, 255));
+		panel_1.setBackground(new Color(0, 128, 128));
 		panel_1.setBounds(0, 0, 236, 655);
 		panel_6.add(panel_1);
 		panel_1.setLayout(null);
@@ -340,9 +351,10 @@ public class menu extends JFrame {
 		lblNewLabel_1_2.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		panel_3.add(lblNewLabel_1_2);
 		
-		JComboBox comboBox = new JComboBox(new Object[]{});
-		comboBox.setBounds(155, 200, 210, 30);
+		String [] gt = {"Nam", "Nữ"};
+		JComboBox comboBox = new JComboBox(gt);
 		comboBox.setSelectedIndex(-1);
+		comboBox.setBounds(155, 200, 210, 30);
 		panel_3.add(comboBox);
 		
 		JLabel lblNewLabel_1_3 = new JLabel("Số điện thoại *");
@@ -427,6 +439,23 @@ public class menu extends JFrame {
 		btnNewButton_2.setBounds(1156, 11, 34, 30);
 		btnNewButton_2.setIcon(new ImageIcon(menu.class.getResource("/Design/cake.png")));
 		panel.add(btnNewButton_2);
+		
+	    btnLu.addActionListener(new ActionListener() {
+	        public void actionPerformed(ActionEvent e) {
+	            String studentID = textField.getText();
+	            String fullName = textField_1.getText();
+	            String gender = comboBox.getSelectedItem().toString();
+	            String dob = textField_2.getText();
+	            String phoneNumber = textField_3.getText();
+	            String email = textField_4.getText();
+	            String address = textField_5.getText();
+	            String parentName = textField_6.getText();
+	            String parentPhoneNumber = textField_7.getText();
+	            String joinDate = textField_8.getText();
+
+	            WriteTextFile.writeToFile(studentID, fullName, gender, dob, phoneNumber, email, address, parentName, parentPhoneNumber, joinDate);
+	        }
+	    });
 		
 		lbmenu.addMouseListener(new MouseAdapter() {
 			@Override
