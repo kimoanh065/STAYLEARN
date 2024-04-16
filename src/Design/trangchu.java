@@ -164,12 +164,23 @@ public class trangchu extends JFrame {
 		panel_6.setBackground(new Color(255, 255, 255));
 		panel_6.setBounds(238, 261, 1018, 445);
 		panel.add(panel_6);
+		panel_6.setLayout(null);
+		
+		JPanel panel_7 = new JPanel();
+		panel_7.setBounds(32, 24, 511, 421);
+		panel_6.add(panel_7);
+		panel_7.setLayout(null);
+		
+		JLabel lblNewLabel_2 = new JLabel("New label");
+		lblNewLabel_2.setBounds(0, 0, 511, 421);
+		panel_7.add(lblNewLabel_2);
+		lblNewLabel_2.setIcon(new ImageIcon(menu.class.getResource("/Design/hoctap1.jpg")));
 		
 		URL iconURL_email = thongtincanhan.class.getResource("email.png");
 	    ImageIcon icon0 = new ImageIcon(iconURL_email);
 	    btnNewButton.setIcon(icon0);
 	    
-	    URL iconURL_thongbao = thongtincanhan.class.getResource("thongbao.icon.png");
+	    URL iconURL_thongbao = thongtincanhan.class.getResource("thongbao.png");
 	    ImageIcon icon1 = new ImageIcon(iconURL_thongbao);
 	    btnNewButton_1.setIcon(icon1);
 	    

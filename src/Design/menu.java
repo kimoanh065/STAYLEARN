@@ -118,10 +118,7 @@ public class menu extends JFrame {
 		int width = 244;
 		int height = 750;
 		
-		
-		
-		
-		
+
 		lbmenu.setIcon(new ImageIcon(menu.class.getResource("/Design/menu.jpg")));
 		panel.add(lbmenu);
 		
@@ -144,7 +141,7 @@ public class menu extends JFrame {
 		
 		JPanel panel_5 = new JPanel();
 		panel_5.setLayout(null);
-		panel_5.setBackground(new Color(0, 255, 255));
+		panel_5.setBackground(new Color(255, 128, 192));
 		panel_5.setBounds(10, 11, 200, 115);
 		panel_4.add(panel_5);
 		
@@ -195,22 +192,48 @@ public class menu extends JFrame {
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.BOLD, 25));
 		home.add(lblNewLabel_1);
 		
-		JPanel panel_1 = new JPanel();
-		panel_1.setBounds(0, 0, 10, 10);
-		home.add(panel_1);
-		
 		JPanel panel_6 = new JPanel();
-		panel_6.setBounds(0, 0, 1280, 750);
+		panel_6.setBounds(0, 0, 1280, 650);
 		home.add(panel_6);
 		panel_6.setLayout(null);
 		
+		JPanel panel_1 = new JPanel();
+		panel_1.setBackground(new Color(0, 255, 255));
+		panel_1.setBounds(0, 0, 236, 655);
+		panel_6.add(panel_1);
+		panel_1.setLayout(null);
+		
+		JLabel lblNewLabel_11 = new JLabel("");
+		lblNewLabel_11.setBounds(10, 11, 85, 81);
+		panel_1.add(lblNewLabel_11);
+		lblNewLabel_11.setIcon(new ImageIcon(menu.class.getResource("/Design/avatar.png")));
+		
+		JPanel panel_7 = new JPanel();
+		panel_7.setBounds(246, 234, 478, 390);
+		panel_6.add(panel_7);
+		panel_7.setLayout(null);
+		
+		JLabel lblNewLabel_10 = new JLabel("");
+		lblNewLabel_10.setBounds(10, 0, 468, 390);
+		panel_7.add(lblNewLabel_10);
+		lblNewLabel_10.setIcon(new ImageIcon(menu.class.getResource("/Design/hoctap1.jpg")));
+		
+		JPanel panel_7_1 = new JPanel();
+		panel_7_1.setLayout(null);
+		panel_7_1.setBounds(759, 234, 478, 390);
+		panel_6.add(panel_7_1);
+		
+		JLabel lblNewLabel_10_1 = new JLabel("");
+		lblNewLabel_10_1.setBounds(10, 0, 468, 390);
+		panel_7_1.add(lblNewLabel_10_1);
+		lblNewLabel_10_1.setIcon(new ImageIcon(menu.class.getResource("/Design/hoctap2.jpg")));
+		
 		JLabel lblNewLabel_9 = new JLabel("");
-		lblNewLabel_9.setBounds(0, 5, 1280, 750);
+		lblNewLabel_9.setBounds(0, 5, 1270, 650);
 		panel_6.add(lblNewLabel_9);
 		lblNewLabel_9.setIcon(new ImageIcon(menu.class.getResource("/Design/cool.jpg")));
-		
-		
-		
+
+	
 		JPanel account = new JPanel();
 		account.setBackground(new Color(248, 248, 255));
 		container.add(account, "account");
