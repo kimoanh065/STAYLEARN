@@ -7,6 +7,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import com.toedter.calendar.JDateChooser;
+
 import Controller.DBController;
 import Controller.WriteTextFile_Staff;
 import Controller.WriteTextFile_User;
@@ -30,6 +32,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.UIManager;
 import java.awt.SystemColor;
@@ -43,13 +48,15 @@ import javax.swing.JComboBox;
 public class Staff_Home extends JFrame {
 	private JTextField tf_manhanvien;
 	private JTextField tf_hovaten;
-	private JTextField tf_ngaysinh;
+	private JDateChooser tf_ngaysinh;
 	private JTextField tf_sdt;
 	private JTextField tf_email;
 	private JTextField tf_diachi;
 	private JTextField tf_vitri;
 	private JTextField tf_staffname;
 	private JComboBox cbb_gioitinh;
+	
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	
 	public static int countOffice() {
 		Connection conn = new Controller.DBController().getConnection();
@@ -78,10 +85,23 @@ public class Staff_Home extends JFrame {
 			stm.setString(1, tf_staffname.getText());
 			ResultSet rs = stm.executeQuery();
 			if (rs.next()) {
+				
+	            
 				tf_manhanvien.setText(rs.getString("ID_Staff"));
 				tf_hovaten.setText(rs.getString("name"));
 				cbb_gioitinh.setSelectedItem(rs.getString("gender"));
-				tf_ngaysinh.setText(rs.getString("dateofbirth"));
+				
+				String ngaySinhStr = rs.getString("dateofbirth");
+				if (ngaySinhStr != null && !ngaySinhStr.isEmpty()) {
+				    try {
+				        Date ngaySinhDate = sdf.parse(ngaySinhStr);
+				        tf_ngaysinh.setDate(ngaySinhDate);
+				    } catch (ParseException ex) {
+				        
+				        ex.printStackTrace();
+				    }
+				}
+				
 				tf_diachi.setText(rs.getString("address"));
 				tf_sdt.setText(rs.getString("phonenumber"));
 				tf_email.setText(rs.getString("email"));
@@ -504,10 +524,18 @@ public class Staff_Home extends JFrame {
 		tf_hovaten.setColumns(10);
 		pn_ttcn.add(tf_hovaten);
 		
-		tf_ngaysinh = new JTextField();
+		tf_ngaysinh = new JDateChooser();
 		tf_ngaysinh.setBounds(155, 260, 210, 30);
-		tf_ngaysinh.setColumns(10);
+		tf_ngaysinh.setDateFormatString("yyyy-MM-dd");
 		pn_ttcn.add(tf_ngaysinh);
+		
+		JButton btnGetDate1 = new JButton("Get Selected Date");
+        btnGetDate1.addActionListener(e -> {
+            // Lấy ngày được chọn và hiển thị trong console
+            Date selectedDate1 = tf_ngaysinh.getDate();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            System.out.println("Selected Date: " + dateFormat.format(selectedDate1));
+        });
 		
 		JLabel lb_hovaten = new JLabel("Họ và tên *");
 		lb_hovaten.setBounds(20, 145, 100, 30);
@@ -602,10 +630,12 @@ public class Staff_Home extends JFrame {
 		
 	    bt_in.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
+	            
+	            
 	            String studentID = tf_manhanvien.getText();
 	            String fullName = tf_hovaten.getText();
-	            String gender = cbb_gioitinh.getSelectedItem().toString();
-	            String dob = tf_ngaysinh.getText();
+	            String gender = cbb_gioitinh.getSelectedItem().toString();      
+	            String dob = sdf.format(tf_ngaysinh.getDate());
 	            String address = tf_diachi.getText();
 	            String phoneNumber = tf_sdt.getText();
 	            String email = tf_email.getText();
@@ -679,10 +709,11 @@ public class Staff_Home extends JFrame {
 				Connection con = new Controller.DBController().getConnection();
 				String sql = "Update staylearn.staff set name = ?, gender = ?, dateofbirth = ?, address = ?, phonenumber = ?, email = ?, position = ?";
 				try {
+		            String formattedDate1 = sdf.format(tf_ngaysinh.getDate());
 					PreparedStatement stm = con.prepareStatement(sql);
 					stm.setString(1, tf_hovaten.getText());
 					stm.setString(2, cbb_gioitinh.getSelectedItem()+"");
-					stm.setString(3, tf_ngaysinh.getText());
+					stm.setString(3, formattedDate1);
 					stm.setString(4, tf_diachi.getText());
 					stm.setString(5, tf_sdt.getText());
 					stm.setString(6, tf_email.getText());
