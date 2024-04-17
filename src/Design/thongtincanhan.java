@@ -6,7 +6,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import control.WriteTextFile;
+import Controller.WriteTextFile_User;
 
 import javax.swing.JLabel;
 import java.awt.Font;
@@ -258,7 +258,7 @@ public class thongtincanhan extends JFrame {
 	            String parentPhoneNumber = textField_7.getText();
 	            String joinDate = textField_9.getText();
 
-	            WriteTextFile.writeToFile(studentID, fullName, gender, dob, phoneNumber, email, address, parentName, parentPhoneNumber, joinDate);
+	            WriteTextFile_User.writeToFile(studentID, fullName, gender, dob, phoneNumber, email, address, parentName, parentPhoneNumber, joinDate);
 	        }
 	    });
 	}

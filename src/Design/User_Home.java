@@ -12,21 +12,29 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
-import control.WriteTextFile;
+import Controller.DBController;
+import Controller.WriteTextFile_User;
 
 
-public class trangchuhocsinh extends JFrame {
+public class User_Home extends JFrame {
 	private JTextField tf_mahocvien;
 	private JTextField tf_hovaten;
 	private JTextField tf_ngaysinh;
@@ -39,15 +47,15 @@ public class trangchuhocsinh extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-
-	/**
-	 * Launch the application.
-	 */
+	private JTextField tf_username;
+	private JComboBox cbb_gioitinh;
+	
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					trangchuhocsinh frame = new trangchuhocsinh();
+					User_Home frame = new User_Home();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -55,11 +63,37 @@ public class trangchuhocsinh extends JFrame {
 			}
 		});
 	}
-
-	/**
-	 * Create the frame.
-	 */
-	public trangchuhocsinh() {
+	
+	public void load_data() {
+		Connection conn = new Controller.DBController().getConnection();
+		String sql = "SELECT idstudent, name, gender, dateofbirth, address, phonenumber, email, Parentname, phone_parent, day_arrive FROM staylearn.student WHERE username = ?;" ;
+		PreparedStatement stm;
+		try {
+			stm = conn.prepareStatement(sql);
+			stm.setString(1, tf_username.getText());
+			ResultSet rs = stm.executeQuery();
+			if (rs.next()) {
+				tf_mahocvien.setText(rs.getString("idstudent"));
+				tf_hovaten.setText(rs.getString("name"));
+				cbb_gioitinh.setSelectedItem(rs.getString("gender"));
+				tf_ngaysinh.setText(rs.getString("dateofbirth"));
+				tf_diachi.setText(rs.getString("address"));
+				tf_sdt.setText(rs.getString("phonenumber"));
+				tf_email.setText(rs.getString("email"));
+				tf_tenphuhuynh.setText(rs.getString("Parentname"));
+				tf_sdtph.setText(rs.getString("phone_parent"));
+				tf_datett.setText(rs.getString("day_arrive"));
+            }
+			else {
+				return;
+			}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+	
+	public User_Home() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 1280, 750);
 		contentPane = new JPanel();
@@ -68,19 +102,19 @@ public class trangchuhocsinh extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
-		URL url_hhd = trangchuhocsinh.class.getResource("logo.png");
+		URL url_hhd = User_Home.class.getResource("logo.png");
 		Image img = Toolkit.getDefaultToolkit().createImage(url_hhd);
 		this.setIconImage(img);
 		
 		JPanel pn_home = new JPanel();
-		pn_home.setBackground(new Color(128, 128, 128));
+		pn_home.setBackground(new Color(250, 250, 210));
 		pn_home.setBounds(0, 0, 1280, 750);
 		contentPane.add(pn_home);
 		pn_home.setLayout(null);
 		
 		
 		JPanel menu = new JPanel();
-		menu.setBackground(new Color(224, 255, 255));
+		menu.setBackground(new Color(253, 245, 230));
 		menu.setBounds(0, 0, 0, 750);
 		pn_home.add(menu);
 		menu.setLayout(null);
@@ -142,7 +176,7 @@ public class trangchuhocsinh extends JFrame {
 		menu.add(lb_dangxuat);
 		
 		JLabel lb_close = new JLabel("");
-		lb_close.setIcon(new ImageIcon(menu.class.getResource("/Design/cancel.jpg")));;
+		lb_close.setIcon(new ImageIcon(Staff_Home.class.getResource("/Design/cancel.jpg")));;
 		lb_close.setBounds(209, 0, 24, 30);
 		menu.add(lb_close);
 		
@@ -152,11 +186,11 @@ public class trangchuhocsinh extends JFrame {
 		int height = 750;
 		
 
-		lb_menu.setIcon(new ImageIcon(menu.class.getResource("/Design/menu.jpg")));
+		lb_menu.setIcon(new ImageIcon(Staff_Home.class.getResource("/Design/menu.jpg")));
 		pn_home.add(lb_menu);
 		
 		JPanel pn_admin = new JPanel();
-		pn_admin.setBackground(new Color(0, 128, 128));
+		pn_admin.setBackground(new Color(189, 183, 107));
 		pn_admin.setBounds(0, 67, 236, 653);
 		pn_home.add(pn_admin);
 		pn_admin.setLayout(null);
@@ -164,7 +198,15 @@ public class trangchuhocsinh extends JFrame {
 		JLabel lb_avatar = new JLabel("");
 		lb_avatar.setBounds(10, 11, 85, 81);
 		pn_admin.add(lb_avatar);
-		lb_avatar.setIcon(new ImageIcon(menu.class.getResource("/Design/avatar.png")));
+		lb_avatar.setIcon(new ImageIcon(Staff_Home.class.getResource("/Design/avatar.png")));
+		
+		tf_username = new JTextField();
+		tf_username.setBackground(new Color(250, 250, 210));
+		tf_username.setFont(new Font("Tahoma", Font.BOLD, 20));
+		tf_username.setText("lam123");
+		tf_username.setBounds(91, 40, 120, 25);
+		pn_admin.add(tf_username);
+		tf_username.setColumns(10);
 		
 		
 		JPanel container = new JPanel();
@@ -180,22 +222,32 @@ public class trangchuhocsinh extends JFrame {
 		
 		
 		JPanel pn_trangchu = new JPanel();
-		pn_trangchu.setBounds(237, 0, 1033, 650);
+		pn_trangchu.setBounds(235, 0, 1033, 650);
 		pn_trangchu.setBackground(Color.WHITE);
 		pn_trangchu.setOpaque(false);
 		home.add(pn_trangchu);
 		pn_trangchu.setLayout(null);
 		
-		JLabel lb_wtts = new JLabel("WELCOM TO "+"THE STAYLEARN");
-		lb_wtts.setForeground(new Color(255, 255, 0));
-		lb_wtts.setFont(new Font("Tahoma", Font.BOLD, 40));
-		lb_wtts.setBounds(415, 196, 592, 332);
-		pn_trangchu.add(lb_wtts);
+		
+		
+		JPanel pn_wel = new JPanel();
+		pn_wel.setBackground(new Color(255, 255, 255, 100));
+		pn_wel.setLayout(null);
+		pn_wel.setBounds(320, 400, 750, 100);
+		pn_trangchu.add(pn_wel);
 		
 		JLabel lb_anhnen = new JLabel("");
 		lb_anhnen.setBounds(0, 0, 1033, 650);
 		pn_trangchu.add(lb_anhnen);
-		lb_anhnen.setIcon(new ImageIcon(menu.class.getResource("/Design/hoctap4.jpg")));
+		lb_anhnen.setIcon(new ImageIcon(User_Home.class.getResource("/Design/back_user.jpg")));
+		
+		JLabel lb_wtts = new JLabel("WELCOM TO THE STAYLEARN");
+		lb_wtts.setHorizontalAlignment(SwingConstants.CENTER);
+		lb_wtts.setForeground(new Color(220, 20, 60));
+		lb_wtts.setFont(new Font("Comic Sans MS", Font.BOLD, 40));
+		lb_wtts.setBackground(new Color(255, 255, 255, 100));
+		lb_wtts.setBounds(0, 25, 650, 49);
+		pn_wel.add(lb_wtts);
 		
 		
 		JPanel account = new JPanel();
@@ -213,38 +265,24 @@ public class trangchuhocsinh extends JFrame {
 		JButton bt_quaylai = new JButton("Quay lại");
 		bt_quaylai.setFont(new Font("Tahoma", Font.BOLD, 11));
 		bt_quaylai.setBackground(new Color(240, 255, 240));
-		bt_quaylai.setBounds(491, 0, 101, 34);
+		bt_quaylai.setBounds(590, 0, 101, 34);
 		bt_quaylai.setForeground(new Color(0, 0, 0));
 		
 		pn_button.add(bt_quaylai);
 		
-		JButton bt_them = new JButton("Thêm");
-		bt_them.setFont(new Font("Tahoma", Font.BOLD, 11));
-		bt_them.setBackground(new Color(240, 255, 240));
-		bt_them.setBounds(602, 0, 89, 34);
-		bt_them.setForeground(new Color(0, 0, 0));
-		pn_button.add(bt_them);
+		JButton bt_sua = new JButton("Sửa thông tin");
+		bt_sua.setFont(new Font("Tahoma", Font.BOLD, 11));
+		bt_sua.setBackground(new Color(240, 255, 240));
+		bt_sua.setBounds(710, 0, 150, 34);
+		bt_sua.setForeground(new Color(0, 0, 0));
+		pn_button.add(bt_sua);
 		
-		JButton bt_xoa = new JButton("Xóa");
-		bt_xoa.setFont(new Font("Tahoma", Font.BOLD, 11));
-		bt_xoa.setBackground(new Color(240, 255, 240));
-		bt_xoa.setBounds(701, 0, 89, 34);
-		bt_xoa.setForeground(new Color(0, 0, 0));
-		pn_button.add(bt_xoa);
-		
-		JButton bt_luu = new JButton("Lưu");
-		bt_luu.setFont(new Font("Tahoma", Font.BOLD, 11));
-		bt_luu.setBackground(new Color(240, 255, 240));
-		bt_luu.setBounds(800, 0, 89, 34);
-		bt_luu.setForeground(new Color(0, 0, 0));
-		pn_button.add(bt_luu);
-		
-		JButton bt_thoat = new JButton("Thoát");
-		bt_thoat.setFont(new Font("Tahoma", Font.BOLD, 11));
-		bt_thoat.setBackground(new Color(240, 255, 240));
-		bt_thoat.setBounds(899, 0, 89, 34);
-		bt_thoat.setForeground(new Color(0, 0, 0));
-		pn_button.add(bt_thoat);
+		JButton bt_in = new JButton("In");
+		bt_in.setFont(new Font("Tahoma", Font.BOLD, 11));
+		bt_in.setBackground(new Color(240, 255, 240));
+		bt_in.setBounds(880, 0, 89, 34);
+		bt_in.setForeground(new Color(0, 0, 0));
+		pn_button.add(bt_in);
 		
 		JPanel pn_ttcn = new JPanel();
 		pn_ttcn.setBounds(235, 56, 1035, 650);
@@ -259,15 +297,14 @@ public class trangchuhocsinh extends JFrame {
 	    
 	    URL iconURL_xoa = thongtincanhan.class.getResource("xoa.png");
 	    ImageIcon icon2 = new ImageIcon(iconURL_xoa);
-	    bt_xoa.setIcon(icon2);
 	    
 	    URL iconURL_them = thongtincanhan.class.getResource("them.png");
 	    ImageIcon icon3 = new ImageIcon(iconURL_them);
-	    bt_them.setIcon(icon3);
+	    bt_sua.setIcon(icon3);
 	    
 	    URL iconURL_luu = thongtincanhan.class.getResource("luu.png");
 	    ImageIcon icon4 = new ImageIcon(iconURL_luu);
-	    bt_luu.setIcon(icon4);
+	    bt_in.setIcon(icon4);
 		
 		JLabel lb_ttcn = new JLabel("Thông tin cá nhân");
 		lb_ttcn.setBackground(new Color(255, 255, 255));
@@ -311,7 +348,7 @@ public class trangchuhocsinh extends JFrame {
 		pn_ttcn.add(lb_gt);
 		
 		String [] gt = {"Nam", "Nữ"};
-		JComboBox cbb_gioitinh = new JComboBox(gt);
+		cbb_gioitinh = new JComboBox(gt);
 		cbb_gioitinh.setBounds(155, 200, 210, 30);
 		cbb_gioitinh.setSelectedIndex(-1);
 		pn_ttcn.add(cbb_gioitinh);
@@ -389,27 +426,27 @@ public class trangchuhocsinh extends JFrame {
 		JLabel lb_ttcn1 = new JLabel("");
 		lb_ttcn1.setBounds(1, 0, 1053, 602);
 		pn_ttcn.add(lb_ttcn1);
-		lb_ttcn1.setIcon(new ImageIcon(menu.class.getResource("/Design/anhnen2.jpg")));
+		lb_ttcn1.setIcon(new ImageIcon(Staff_Home.class.getResource("/Design/anhnen2.jpg")));
 		
 		JButton bt_email = new JButton("");
 		bt_email.setBackground(new Color(255, 255, 255));
 		bt_email.setBounds(1056, 11, 34, 30);
-		bt_email.setIcon(new ImageIcon(menu.class.getResource("/Design/email.png")));
+		bt_email.setIcon(new ImageIcon(Staff_Home.class.getResource("/Design/email.png")));
 		pn_home.add(bt_email);
 		
 		JButton bt_thongbao = new JButton("");
 		bt_thongbao.setBackground(new Color(255, 255, 255));
 		bt_thongbao.setBounds(1106, 11, 34, 30);
-		bt_thongbao.setIcon(new ImageIcon(menu.class.getResource("/Design/thongbao.png")));
+		bt_thongbao.setIcon(new ImageIcon(Staff_Home.class.getResource("/Design/thongbao.png")));
 		pn_home.add(bt_thongbao);
 		
 		JButton bt_cake = new JButton("");
 		bt_cake.setBackground(new Color(255, 255, 255));
 		bt_cake.setBounds(1156, 11, 34, 30);
-		bt_cake.setIcon(new ImageIcon(menu.class.getResource("/Design/cake.png")));
+		bt_cake.setIcon(new ImageIcon(Staff_Home.class.getResource("/Design/cake.png")));
 		pn_home.add(bt_cake);
 		
-		bt_luu.addActionListener(new ActionListener() {
+		bt_in.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
 	            String studentID = tf_mahocvien.getText();
 	            String fullName = tf_hovaten.getText();
@@ -422,7 +459,7 @@ public class trangchuhocsinh extends JFrame {
 	            String parentPhoneNumber = tf_sdtph.getText();
 	            String joinDate = tf_datett.getText();
 
-	            WriteTextFile.writeToFile(studentID, fullName, gender, dob, phoneNumber, email, address, parentName, parentPhoneNumber, joinDate);
+	            WriteTextFile_User.writeToFile(studentID, fullName, gender, dob, phoneNumber, email, address, parentName, parentPhoneNumber, joinDate);
 	        }
 	    });
 		
@@ -478,6 +515,38 @@ public class trangchuhocsinh extends JFrame {
 				CardLayout c1 = (CardLayout)(container.getLayout());
 				c1.show(container, "account");
 				menu.setSize(0,750);
+				load_data();
+			}
+		});
+		
+		bt_sua.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				Connection con = new Controller.DBController().getConnection();
+				String sql = "Update staylearn.student set name = ?, gender = ?, dateofbirth = ?, address = ?, phonenumber = ?, email = ?, Parentname = ?, phone_parent = ?, day_arrive = ?";
+				try {
+					PreparedStatement stm = con.prepareStatement(sql);
+					stm.setString(1, tf_hovaten.getText());
+					stm.setString(2, cbb_gioitinh.getSelectedItem()+"");
+					stm.setString(3, tf_ngaysinh.getText());
+					stm.setString(4, tf_diachi.getText());
+					stm.setString(5, tf_sdt.getText());
+					stm.setString(6, tf_email.getText());
+					stm.setString(7, tf_tenphuhuynh.getText());
+					stm.setString(8, tf_sdtph.getText());
+					stm.setString(9, tf_datett.getText());
+					stm.execute();
+					
+					stm.execute();
+					JOptionPane.showMessageDialog(null, "Cập nhập thành công");
+					
+				} catch (Exception e2) {
+					// TODO: handle exception
+					JOptionPane.showMessageDialog(null, "Cập nhập không thành công");
+					e2.printStackTrace();
+				}
 			}
 		});
 		
