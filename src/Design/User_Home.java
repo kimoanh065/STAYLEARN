@@ -185,6 +185,14 @@ public class User_Home extends JFrame {
 		menu.add(lb_chinhsach);
 		
 		JLabel lb_dangxuat = new JLabel("ĐĂNG XUẤT");
+		lb_dangxuat.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				setVisible(false);
+				Form_Login loginForm = new Form_Login();
+		        loginForm.setVisible(true);
+			}
+		});
 		lb_dangxuat.setHorizontalAlignment(SwingConstants.CENTER);
 		lb_dangxuat.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lb_dangxuat.setBounds(0, 387, 244, 42);
@@ -215,10 +223,13 @@ public class User_Home extends JFrame {
 		pn_admin.add(lb_avatar);
 		lb_avatar.setIcon(new ImageIcon(Staff_Home.class.getResource("/Design/avatar.png")));
 		
+		Form_Login dk = new Form_Login();
+		String us = Form_Login.userName;
+		
 		tf_username = new JTextField();
 		tf_username.setBackground(new Color(250, 250, 210));
 		tf_username.setFont(new Font("Tahoma", Font.BOLD, 20));
-		tf_username.setText("lam123");
+		tf_username.setText(us);
 		tf_username.setBounds(91, 40, 120, 25);
 		pn_admin.add(tf_username);
 		tf_username.setColumns(10);
@@ -306,18 +317,18 @@ public class User_Home extends JFrame {
 		pn_ttcn.setLayout(null);
 		
 	    
-	    URL iconURL_quaylai = thongtincanhan.class.getResource("quaylai.png");
+	    URL iconURL_quaylai = User_Home.class.getResource("quaylai.png");
 	    ImageIcon icon1 = new ImageIcon(iconURL_quaylai);
 	    bt_quaylai.setIcon(icon1);
 	    
-	    URL iconURL_xoa = thongtincanhan.class.getResource("xoa.png");
+	    URL iconURL_xoa = User_Home.class.getResource("xoa.png");
 	    ImageIcon icon2 = new ImageIcon(iconURL_xoa);
 	    
-	    URL iconURL_them = thongtincanhan.class.getResource("them.png");
+	    URL iconURL_them = User_Home.class.getResource("them.png");
 	    ImageIcon icon3 = new ImageIcon(iconURL_them);
 	    bt_sua.setIcon(icon3);
 	    
-	    URL iconURL_luu = thongtincanhan.class.getResource("luu.png");
+	    URL iconURL_luu = User_Home.class.getResource("luu.png");
 	    ImageIcon icon4 = new ImageIcon(iconURL_luu);
 	    bt_in.setIcon(icon4);
 		
@@ -328,7 +339,7 @@ public class User_Home extends JFrame {
 		pn_ttcn.add(lb_ttcn);
 		
 
-		URL iconURL_thongtin = thongtincanhan.class.getResource("thongtin.icon.png");
+		URL iconURL_thongtin = User_Home.class.getResource("thongtin.icon.png");
 	    ImageIcon icon0 = new ImageIcon(iconURL_thongtin);
 	    lb_ttcn.setIcon(icon0);
 		

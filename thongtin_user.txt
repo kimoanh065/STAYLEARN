@@ -1,0 +1,10 @@
+Mã học viên: E1-01
+Họ và tên: Lam
+Giới tính: Nam
+Ngày sinh: 2005-12-14
+Số điện thoại: 813002124
+Email: tunglam@gmail.com
+Địa chỉ: Da Nang
+Tên phụ huynh: Cuong
+Số điện thoại phụ huynh: 1234567895
+Ngày đến trung tâm: 2024-04-16
