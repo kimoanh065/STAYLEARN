@@ -2,8 +2,6 @@ package Controller;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 public class DBController {
 	
@@ -29,7 +27,7 @@ public class DBController {
 			   Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/","root","W@2915djkq#");
 			   System.out.println("Connect thanh cong");
 			   
-		} catch(Exception e){
+		} catch(Exception ignored){
 		}
 		
 	}

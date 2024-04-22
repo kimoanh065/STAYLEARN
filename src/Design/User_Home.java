@@ -27,8 +27,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -48,7 +50,7 @@ public class User_Home extends JFrame {
 	private JTextField tf_diachi;
 	private JTextField tf_tenphuhuynh;
 	private JTextField tf_sdtph;
-	private JTextField tf_datett;
+	private JDateChooser tf_datett;
 
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
@@ -92,12 +94,23 @@ public class User_Home extends JFrame {
 				        ex.printStackTrace();
 				    }
 				}
+				
 				tf_diachi.setText(rs.getString("address"));
 				tf_sdt.setText(rs.getString("phonenumber"));
 				tf_email.setText(rs.getString("email"));
 				tf_tenphuhuynh.setText(rs.getString("Parentname"));
 				tf_sdtph.setText(rs.getString("phone_parent"));
-				tf_datett.setText(rs.getString("day_arrive"));
+				String ngaydenStr = rs.getString("day_arrive");
+				if (ngaydenStr != null && !ngaydenStr.isEmpty()) {
+				    try {
+				        Date ngaydenDate = sdf.parse(ngaydenStr);
+				        tf_datett.setDate(ngaydenDate);
+				    } catch (ParseException ex) {
+				        
+				        ex.printStackTrace();
+				    }
+				}
+
             }
 			else {
 				return;
@@ -351,6 +364,7 @@ public class User_Home extends JFrame {
 		tf_mahocvien = new JTextField();
 		tf_mahocvien.setBounds(155, 92, 210, 30);
 		tf_mahocvien.setColumns(10);
+		tf_mahocvien.setEditable(false);
 		pn_ttcn.add(tf_mahocvien);
 		
 		tf_hovaten = new JTextField();
@@ -434,9 +448,8 @@ public class User_Home extends JFrame {
 		lb_sdtph.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		pn_ttcn.add(lb_sdtph);
 		
-		tf_datett = new JTextField();
+		tf_datett = new JDateChooser();
 		tf_datett.setBounds(618, 322, 210, 31);
-		tf_datett.setColumns(10);
 		pn_ttcn.add(tf_datett);
 		
 		JLabel lb_datett = new JLabel("Ngày đến trung tâm");
@@ -483,28 +496,35 @@ public class User_Home extends JFrame {
 	            String address = tf_diachi.getText();
 	            String parentName = tf_tenphuhuynh.getText();
 	            String parentPhoneNumber = tf_sdtph.getText();
-	            String joinDate = tf_datett.getText();
+	            String joinDate = sdf.format(tf_datett.getDate());
 
 	            WriteTextFile_User.writeToFile(studentID, fullName, gender, dob, phoneNumber, email, address, parentName, parentPhoneNumber, joinDate);
 	        }
 	    });
 		
 		lb_menu.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				new Thread(() -> {
-		            for (int i = 0; i<width; i++){
-		                menu.setSize(i, height);
+		    @Override
+		    public void mouseClicked(MouseEvent e) {
+		        int targetWidth = 244; 
+		        int step = 10;
+
+		        Timer timer = new Timer(10, new ActionListener() {
+		            int menuWidth = 0;
+
+		            @Override
+		            public void actionPerformed(ActionEvent e) {
+		                menuWidth += step;
+		                menu.setSize(menuWidth, height);
+		                menu.revalidate(); // Cập nhật lại giao diện
+
+		                if (menuWidth >= targetWidth) {
+		                    ((Timer) e.getSource()).stop();
+		                }
 		            }
-		            try {
-						Thread.sleep(30);
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-		            
-		        }).start();
-			}
+		        });
+
+		        timer.start();
+		    }
 		});
 		
 		lb_close.addMouseListener(new MouseAdapter() {
@@ -555,6 +575,7 @@ public class User_Home extends JFrame {
 				try {
 					
 					String formattedDate1 = sdf.format(tf_ngaysinh.getDate());
+					String formattedDate2 = sdf.format(tf_datett.getDate());
 					PreparedStatement stm = con.prepareStatement(sql);
 					stm.setString(1, tf_hovaten.getText());
 					stm.setString(2, cbb_gioitinh.getSelectedItem()+"");
@@ -564,7 +585,7 @@ public class User_Home extends JFrame {
 					stm.setString(6, tf_email.getText());
 					stm.setString(7, tf_tenphuhuynh.getText());
 					stm.setString(8, tf_sdtph.getText());
-					stm.setString(9, tf_datett.getText());
+					stm.setString(9, formattedDate2);
 					stm.execute();
 					
 					stm.execute();

@@ -41,6 +41,7 @@ import java.awt.SystemColor;
 import java.awt.Toolkit;
 
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import javax.swing.JButton;
 import javax.swing.JTextField;
 import javax.swing.JComboBox;
@@ -528,6 +529,7 @@ public class Staff_Home extends JFrame {
 		tf_manhanvien = new JTextField();
 		tf_manhanvien.setBounds(155, 92, 210, 30);
 		tf_manhanvien.setColumns(10);
+		tf_manhanvien.setEditable(false);
 		pn_ttcn.add(tf_manhanvien);
 		
 		tf_hovaten = new JTextField();
@@ -656,22 +658,29 @@ public class Staff_Home extends JFrame {
 	        }
 	    });
 		
-		lb_menu.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				new Thread(() -> {
-		            for (int i = 0; i<width; i++){
-		                menu.setSize(i, height);
+	    lb_menu.addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mouseClicked(MouseEvent e) {
+		        int targetWidth = 244; 
+		        int step = 10;
+
+		        Timer timer = new Timer(10, new ActionListener() {
+		            int menuWidth = 0;
+
+		            @Override
+		            public void actionPerformed(ActionEvent e) {
+		                menuWidth += step;
+		                menu.setSize(menuWidth, height);
+		                menu.revalidate(); // Cập nhật lại giao diện
+
+		                if (menuWidth >= targetWidth) {
+		                    ((Timer) e.getSource()).stop();
+		                }
 		            }
-		            try {
-						Thread.sleep(30);
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-		            
-		        }).start();
-			}
+		        });
+
+		        timer.start();
+		    }
 		});
 		
 		lb_close.addMouseListener(new MouseAdapter() {

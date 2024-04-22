@@ -8,6 +8,7 @@ import Controller.DBController;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -56,9 +57,9 @@ public class Form_Login extends JFrame {
 			if (rs.next()) {
 				userName = tfdangnhaptk.getText();
 				JOptionPane.showMessageDialog(null, "Đăng nhập thành công");
-				setVisible(false);
-				setVisible(false);
-				new User_Home();
+				User_Home userHome = new User_Home(); // Tạo một thể hiện mới của User_Home
+			    userHome.setVisible(true); // Hiển thị cửa sổ User_Home
+			    setVisible(false);
 			}
 			else
 				JOptionPane.showMessageDialog(null, "Tài khoản và mật khẩu không chính xác");
@@ -88,8 +89,9 @@ public class Form_Login extends JFrame {
 			if (rs.next()) {
 				staffName = tfdangnhaptk1.getText();
 				JOptionPane.showMessageDialog(null, "Đăng nhập thành công");
-				new Staff_Home();
-				setVisible(false);
+				Staff_Home staffHome = new Staff_Home(); // Tạo một thể hiện mới của Staff_Home
+			    staffHome.setVisible(true); // Hiển thị cửa sổ Staff_Home
+			    setVisible(false); // Ẩn cửa sổ đăng nhập hiện tại
 			}
 			else
 				JOptionPane.showMessageDialog(null, "Tài khoản và mật khẩu không chính xác");
@@ -105,9 +107,12 @@ public class Form_Login extends JFrame {
 		setTitle("STAYLEARN");
 		setSize(1280,750);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setVisible(true);
 		setLocationRelativeTo(null);
 		setResizable(false);
+		
+		URL url_hhd = Form_Login.class.getResource("logo.png");
+		Image img = Toolkit.getDefaultToolkit().createImage(url_hhd);
+		this.setIconImage(img);
 		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -285,3 +290,8 @@ public class Form_Login extends JFrame {
 
 	}
 }
+//( ͡° ͜ʖ ͡°)
+//(´• ω •`) ♡
+//c♪(๑ᴖ◡ᴖ๑)♪
+//(・ω・)ﾉ
+//(˶>ω<˶)
