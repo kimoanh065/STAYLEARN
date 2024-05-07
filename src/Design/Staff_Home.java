@@ -643,8 +643,6 @@ public class Staff_Home extends JFrame {
 		
 	    bt_in.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
-	            
-	            
 	            String studentID = tf_manhanvien.getText();
 	            String fullName = tf_hovaten.getText();
 	            String gender = cbb_gioitinh.getSelectedItem().toString();      

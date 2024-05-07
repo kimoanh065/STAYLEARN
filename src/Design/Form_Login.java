@@ -4,8 +4,6 @@ import javax.swing.*;
 
 import javax.swing.border.EmptyBorder;
 import Controller.DBController;
-
-
 import java.awt.*;
 import java.awt.event.*;
 import java.net.URL;
@@ -22,9 +20,16 @@ public class Form_Login extends JFrame {
 	private JPanel contentPane;
 	private CardLayout cardLayout;
 	private JTextField tfdangnhaptk;
-	private JTextField tfdangnhapmk;
+	private JPasswordField tfdangnhapmk;
 	private JTextField tfdangnhaptk1;
-	private JTextField tfdangnhapmk1;
+	private JPasswordField tfdangnhapmk1;
+	Controller.DBController dbController = new Controller.DBController();
+	public static JPanel pnmain;
+	
+	public static void switchPanel(String card) {
+	    CardLayout cl = (CardLayout)(pnmain.getLayout());
+	    cl.show(pnmain, card);
+	}
 
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -37,38 +42,6 @@ public class Form_Login extends JFrame {
 				}
 			}
 		});
-	}
-
-	public void hocsinh() {
-		Connection con = new Controller.DBController().getConnection();
-		String sql1 = "SELECT username, passworduser FROM staylearn.user_account WHERE username = ? AND passworduser = ?";
-		
-		if(tfdangnhaptk.getText().isEmpty() || tfdangnhapmk.getText().isEmpty()) {
-			JOptionPane.showMessageDialog(null, "Vui lòng điền đầy đủ thông tin");
-			return; 
-		}
-		
-		try {
-			PreparedStatement stm = con.prepareStatement(sql1);
-			stm.setString(1, tfdangnhaptk.getText());
-			stm.setString(2, tfdangnhapmk.getText());
-			ResultSet rs = stm.executeQuery();
-			
-			if (rs.next()) {
-				userName = tfdangnhaptk.getText();
-				JOptionPane.showMessageDialog(null, "Đăng nhập thành công");
-				User_Home userHome = new User_Home(); // Tạo một thể hiện mới của User_Home
-			    userHome.setVisible(true); // Hiển thị cửa sổ User_Home
-			    setVisible(false);
-			}
-			else
-				JOptionPane.showMessageDialog(null, "Tài khoản và mật khẩu không chính xác");
-		} catch (SQLException e2) {
-			// TODO: handle exception
-			e2.printStackTrace();
-		}
-		// Code thực thi trong luồng
-		System.out.println("Luồng được thực thi!");
 	}
 
 	public void giaovien() {
@@ -110,6 +83,9 @@ public class Form_Login extends JFrame {
 		setLocationRelativeTo(null);
 		setResizable(false);
 		
+		Register regis = new Register();
+		regis.setBackground(new Color(255, 255, 255, 200));
+		
 		URL url_hhd = Form_Login.class.getResource("logo.png");
 		Image img = Toolkit.getDefaultToolkit().createImage(url_hhd);
 		this.setIconImage(img);
@@ -118,7 +94,7 @@ public class Form_Login extends JFrame {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
-		JPanel pnmain = new JPanel();
+		pnmain = new JPanel();
 		pnmain.setBounds(450, 200, 400, 300);
 		pnmain.setOpaque(false);
 		contentPane.add(pnmain);
@@ -151,7 +127,7 @@ public class Form_Login extends JFrame {
 		lbuser_pass.setFont(new Font("Consolas", Font.BOLD, 15));
 		controlPanel.add(lbuser_pass);
 
-		tfdangnhapmk = new JTextField();
+		tfdangnhapmk = new JPasswordField();
 		tfdangnhapmk.setBounds(175, 149, 170, 30);
 		tfdangnhapmk.setFont(new Font("Consolas", Font.BOLD, 15));
 		tfdangnhapmk.setColumns(10);
@@ -160,26 +136,27 @@ public class Form_Login extends JFrame {
 		JButton btlogin1 = new JButton("Login");
 		btlogin1.setForeground(new Color(255, 255, 255));
 		btlogin1.setBackground(new Color(65, 105, 225));
-		btlogin1.setBounds(128, 220, 150, 30);
+		btlogin1.setBounds(120, 208, 150, 30);
 		btlogin1.setFont(new Font("Consolas", Font.BOLD, 15));
 		controlPanel.add(btlogin1);
 		btlogin1.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-
-				Thread thread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						// Mã này sẽ được thực thi trong một luồng riêng
-						hocsinh();
-					}
-				});
-
-				// Khởi động luồng
-
-				thread.start();
+				if(tfdangnhaptk.getText().isEmpty() || tfdangnhapmk.getText().isEmpty()) {
+					JOptionPane.showMessageDialog(null, "Vui lòng điền đầy đủ thông tin");
+					return; 
+				}
+				if (dbController.checkUser(tfdangnhaptk.getText(), new String(tfdangnhapmk.getPassword()))) {
+					userName = tfdangnhaptk.getText();
+					JOptionPane.showMessageDialog(null, "Welcome!");
+					setVisible(false);
+					new User_Home();
+				}
+				else {
+					JOptionPane.showMessageDialog(null, "Tài khoản và mật khẩu không chính xác");
+					return;
+				}
 			}
 		});
 
@@ -198,10 +175,19 @@ public class Form_Login extends JFrame {
 		bt_staff.setFont(new Font("Consolas", Font.BOLD, 15));
 		bt_staff.setFocusable(false);
 		controlPanel.add(bt_staff);
+		
+		JLabel lblNewLabel = new JLabel("New Student? Register here");
+		
+		lblNewLabel.setForeground(new Color(220, 20, 60));
+		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 15));
+		lblNewLabel.setBounds(89, 258, 221, 13);
+		controlPanel.add(lblNewLabel);
 		JPanel pn_login = new JPanel();
 		pn_login.setBackground(new Color(255, 255, 255, 200));
 		pn_login.setLayout(null);
-
+		
+		pnmain.add(regis, "2");
+		
 		JLabel lbmanager = new JLabel("STAFF LOGIN");
 		lbmanager.setForeground(new Color(51, 0, 255));
 		lbmanager.setFont(new Font("Consolas", Font.BOLD, 21));
@@ -224,7 +210,7 @@ public class Form_Login extends JFrame {
 		lbpassword.setBounds(69, 153, 80, 25);
 		pn_login.add(lbpassword);
 
-		tfdangnhapmk1 = new JTextField();
+		tfdangnhapmk1 = new JPasswordField();
 		tfdangnhapmk1.setFont(new Font("Consolas", Font.BOLD, 14));
 		tfdangnhapmk1.setColumns(10);
 		tfdangnhapmk1.setBounds(175, 149, 170, 30);
@@ -279,6 +265,13 @@ public class Form_Login extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				CardLayout c2 = (CardLayout) (pnmain.getLayout());
 				c2.show(pnmain, "3");
+			}
+		});
+		lblNewLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				CardLayout c2 = (CardLayout) (pnmain.getLayout());
+				c2.show(pnmain, "2");
 			}
 		});
 		bt_stu1.addActionListener(new ActionListener() {

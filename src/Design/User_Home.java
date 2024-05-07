@@ -243,7 +243,7 @@ public class User_Home extends JFrame {
 		tf_username.setBackground(new Color(250, 250, 210));
 		tf_username.setFont(new Font("Tahoma", Font.BOLD, 20));
 		tf_username.setText(us);
-		tf_username.setBounds(91, 40, 120, 25);
+		tf_username.setBounds(85, 40, 141, 25);
 		pn_admin.add(tf_username);
 		tf_username.setColumns(10);
 		
@@ -280,7 +280,7 @@ public class User_Home extends JFrame {
 		pn_trangchu.add(lb_anhnen);
 		lb_anhnen.setIcon(new ImageIcon(User_Home.class.getResource("/Design/back_user.jpg")));
 		
-		JLabel lb_wtts = new JLabel("WELCOM TO THE STAYLEARN");
+		JLabel lb_wtts = new JLabel("WELCOME TO THE STAYLEARN");
 		lb_wtts.setHorizontalAlignment(SwingConstants.CENTER);
 		lb_wtts.setForeground(new Color(220, 20, 60));
 		lb_wtts.setFont(new Font("Comic Sans MS", Font.BOLD, 40));
