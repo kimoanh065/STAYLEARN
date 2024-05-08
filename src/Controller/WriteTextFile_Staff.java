@@ -3,12 +3,14 @@ package Controller;
 import java.io.IOException;
 import java.io.File;
 import java.io.FileWriter;
+import Design.Form_Login;
 
 public class WriteTextFile_Staff {
     public static void writeToFile(String studentID, String fullName, String gender, String dob, String address,
                                     String phoneNumber, String email, String position) {
         try {
-            File file = new File("thongtin_staff.txt");
+        	String staffname = Form_Login.staffName;
+            File file = new File("thongtin_staff_" + staffname +".txt");
             FileWriter writer = new FileWriter(file);
 
             writer.write("Mã nhân viên: " + studentID + "\n");
@@ -21,7 +23,7 @@ public class WriteTextFile_Staff {
             writer.write("Vị trí: " + position + "\n");
 
             writer.close();
-            System.out.println("Thông tin đã được lưu vào tệp thongtin_staff.txt.");
+            System.out.println("Thông tin đã được lưu vào tệp thongtin_staff_" + staffname + ".txt");
         } catch (IOException e) {
             System.out.println("Đã xảy ra lỗi khi ghi vào tệp.");
             e.printStackTrace();

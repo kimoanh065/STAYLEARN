@@ -13,7 +13,7 @@ public class DBController {
 	public Connection getConnection() {
 		String url = "jdbc:mysql://localhost:3306/staylearn";
 		String user="root";
-		String pass="W@2915djkq#";
+		String pass="Votienphuc123";
 		try {
 			return DriverManager.getConnection(url,user,pass);
 		} catch (Exception e) {

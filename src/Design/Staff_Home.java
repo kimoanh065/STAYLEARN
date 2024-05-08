@@ -1,10 +1,13 @@
 package Design;
 
 import java.awt.Container;
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 import com.toedter.calendar.JDateChooser;
@@ -12,6 +15,9 @@ import com.toedter.calendar.JDateChooser;
 import Controller.DBController;
 import Controller.WriteTextFile_Staff;
 import Controller.WriteTextFile_User;
+import Design.*;
+import Design.Form_Login;
+import Design.Staff_Home.SharedSocketService;
 
 import java.awt.BorderLayout;
 import javax.swing.JLabel;
@@ -27,6 +33,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -41,6 +53,8 @@ import java.awt.SystemColor;
 import java.awt.Toolkit;
 
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.JButton;
 import javax.swing.JTextField;
@@ -53,11 +67,31 @@ public class Staff_Home extends JFrame {
 	private JTextField tf_sdt;
 	private JTextField tf_email;
 	private JTextField tf_diachi;
-	private JTextField tf_vitri;
+	private JComboBox tf_vitri;
 	private JTextField tf_staffname;
 	private JComboBox cbb_gioitinh;
-	
+	private JTextArea tf_chat;
+	private JTextArea tf_giaodien;
+	private JButton bt_gui;
+	private static Socket socket;
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	
+	private static final String url = "192.168.1.128";
+	private static final int PORT = 8000;
+
+	public class SharedSocketService {
+
+		public static synchronized Socket getSocket() {
+			if (socket == null) {
+				try {
+					socket = new Socket(url, PORT);
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+			}
+			return socket;
+		}
+	}
 	
 	public static int countOffice() {
 		Connection conn = new Controller.DBController().getConnection();
@@ -79,7 +113,7 @@ public class Staff_Home extends JFrame {
 	
 	public void load_data() {
 		Connection conn = new Controller.DBController().getConnection();
-		String sql = "SELECT ID_Staff, name, gender, dateofbirth, address, phonenumber, email, position FROM staylearn.staff WHERE staffname = ?;" ;
+		String sql = "SELECT IDStaff, name, gender, dateofbirth, address, phonenumber, email, position FROM staylearn.staff WHERE staffname = ?;" ;
 		PreparedStatement stm;
 		try {
 			stm = conn.prepareStatement(sql);
@@ -88,7 +122,7 @@ public class Staff_Home extends JFrame {
 			if (rs.next()) {
 				
 	            
-				tf_manhanvien.setText(rs.getString("ID_Staff"));
+				tf_manhanvien.setText(rs.getString("IDStaff"));
 				tf_hovaten.setText(rs.getString("name"));
 				cbb_gioitinh.setSelectedItem(rs.getString("gender"));
 				
@@ -106,7 +140,8 @@ public class Staff_Home extends JFrame {
 				tf_diachi.setText(rs.getString("address"));
 				tf_sdt.setText(rs.getString("phonenumber"));
 				tf_email.setText(rs.getString("email"));
-				tf_vitri.setText(rs.getString("position"));
+				String position = rs.getString("position");
+				tf_vitri.setSelectedItem(position != null ? position : "Giáo viên");
             }
 			else {
 				return;
@@ -187,7 +222,7 @@ public class Staff_Home extends JFrame {
 		
 		JPanel menu = new JPanel();
 		menu.setBackground(new Color(224, 255, 255));
-		menu.setBounds(0, 0, 0, 750);
+		menu.setBounds(0, 0, 244, 750);
 		pn_home.add(menu);
 		menu.setLayout(null);
 		
@@ -241,6 +276,12 @@ public class Staff_Home extends JFrame {
 		lb_chinhsach.setBounds(0, 344, 244, 42);
 		menu.add(lb_chinhsach);
 		
+		JLabel lb_message = new JLabel("TRÒ CHUYỆN");
+		lb_message.setHorizontalAlignment(SwingConstants.CENTER);
+		lb_message.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lb_message.setBounds(0, 387, 244, 42);
+		menu.add(lb_message);
+		
 		JLabel lb_dangxuat = new JLabel("ĐĂNG XUẤT");
 		lb_dangxuat.addMouseListener(new MouseAdapter() {
 			@Override
@@ -252,7 +293,7 @@ public class Staff_Home extends JFrame {
 		});
 		lb_dangxuat.setHorizontalAlignment(SwingConstants.CENTER);
 		lb_dangxuat.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lb_dangxuat.setBounds(0, 387, 244, 42);
+		lb_dangxuat.setBounds(0, 430, 244, 42);
 		menu.add(lb_dangxuat);
 		
 		JLabel lb_close = new JLabel("");
@@ -276,10 +317,10 @@ public class Staff_Home extends JFrame {
 		pn_admin.setLayout(null);
 		
 		Form_Login dk = new Form_Login();
-		String stf = Form_Login.staffName;
+		String staffname = Form_Login.staffName;
 		
 		tf_staffname = new JTextField();
-		tf_staffname.setText(stf);
+		tf_staffname.setText(staffname);
 		tf_staffname.setFont(new Font("Tahoma", Font.BOLD, 20));
 		tf_staffname.setColumns(10);
 		tf_staffname.setBackground(new Color(102, 205, 170));
@@ -596,9 +637,8 @@ public class Staff_Home extends JFrame {
 		tf_diachi.setColumns(10);
 		pn_ttcn.add(tf_diachi);
 		
-		tf_vitri = new JTextField();
+		tf_vitri = new JComboBox(new String[]{"Giám đốc", "Giáo viên", "Quản lý", "Trợ lý", "Tư vấn viên", "IT Support", "Kế toán"});
 		tf_vitri.setBounds(618, 201, 210, 30);
-		tf_vitri.setColumns(10);
 		pn_ttcn.add(tf_vitri);
 		
 		JLabel lb_diachi = new JLabel("Địa chỉ");
@@ -640,6 +680,27 @@ public class Staff_Home extends JFrame {
 		pn_home.add(bt_cake);
 		
 		
+		JPanel message = new JPanel();
+		// account.setBackground(new Color(255, 255, 255));
+		container.add(message, "message");
+		message.setLayout(null);
+
+		tf_chat = new JTextArea();
+		tf_chat.setBackground(new Color(128, 255, 255));
+		tf_chat.setBounds(271, 580, 900, 50);
+		message.add(tf_chat);
+
+		bt_gui = new JButton("GỬI");
+		bt_gui.setBounds(1181, 580, 60, 50);
+		message.add(bt_gui);
+
+		JTextArea tf_giaodien = new JTextArea();
+		tf_giaodien.setFont(new Font("Monospaced", Font.PLAIN, 20));
+		tf_giaodien.setBounds(271, 10, 900, 530);
+		JScrollPane thanhcuon = new JScrollPane(tf_giaodien);
+
+		thanhcuon.setBounds(271, 10, 900, 530);
+		message.add(thanhcuon);
 		
 	    bt_in.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
@@ -651,7 +712,7 @@ public class Staff_Home extends JFrame {
 	            String phoneNumber = tf_sdt.getText();
 	            String email = tf_email.getText();
 	    
-	            String position = tf_vitri.getText();
+	            String position = (String) tf_vitri.getSelectedItem();
 	            WriteTextFile_Staff.writeToFile(studentID, fullName, gender, dob, address, phoneNumber, email, position);
 	        }
 	    });
@@ -725,7 +786,7 @@ public class Staff_Home extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				Connection con = new Controller.DBController().getConnection();
-				String sql = "Update staylearn.staff set name = ?, gender = ?, dateofbirth = ?, address = ?, phonenumber = ?, email = ?, position = ?";
+				String sql = "Update staylearn.staff set name = ?, gender = ?, dateofbirth = ?, address = ?, phonenumber = ?, email = ?, position = ? WHERE staffname = ?";
 				try {
 		            String formattedDate1 = sdf.format(tf_ngaysinh.getDate());
 					PreparedStatement stm = con.prepareStatement(sql);
@@ -735,7 +796,8 @@ public class Staff_Home extends JFrame {
 					stm.setString(4, tf_diachi.getText());
 					stm.setString(5, tf_sdt.getText());
 					stm.setString(6, tf_email.getText());
-					stm.setString(7, tf_vitri.getText());
+					stm.setString(7, (String) tf_vitri.getSelectedItem());
+					stm.setString(8, staffname);
 					stm.execute();
 					
 					stm.execute();
@@ -746,6 +808,67 @@ public class Staff_Home extends JFrame {
 					JOptionPane.showMessageDialog(null, "Cập nhập không thành công");
 					e2.printStackTrace();
 				}
+			}
+		});
+		
+		SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				try {
+					System.out.println("Kết nối đến server...");
+					String sang = Form_Login.staffName;
+					System.out.println(sang);
+
+					socket = SharedSocketService.getSocket();
+					
+					System.out.println("Đã kết nối xong");
+
+					bt_gui.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							String message = tf_chat.getText();
+							try {
+								
+								if(message != null && !message.isEmpty()) {
+								OutputStream output = socket.getOutputStream();
+								PrintWriter writer = new PrintWriter(output, true);
+								writer.println(staffname+": "+message);
+								tf_chat.setText("");
+								System.out.println("Đã gửi tin nhắn: " + message);}
+							} catch (IOException ex) {
+								ex.printStackTrace();
+							}
+						}
+					});
+
+					 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			            String line;
+			            while ((line = reader.readLine()) != null) {
+			                final String message1 = line;
+			                
+			                SwingUtilities.invokeLater(() -> tf_giaodien.append(message1 + "\n"));
+
+			                // Kiểm tra xem kết nối đã đóng chưa
+			                if (socket.isClosed()) {
+			                    break; // Thoát khỏi vòng lặp nếu kết nối đã đóng
+			                }
+			            }
+
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+
+				return null;
+			}
+		};
+
+		lb_message.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				CardLayout c1 = (CardLayout) (container.getLayout());
+				c1.show(container, "message");
+				menu.setSize(0, 750);
+				worker.execute(); // Khởi chạy SwingWorker ở đây
 			}
 		});
 		

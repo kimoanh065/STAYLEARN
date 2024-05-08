@@ -11,6 +11,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,8 +34,12 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -39,6 +49,7 @@ import com.toedter.calendar.JDateChooser;
 
 import Controller.DBController;
 import Controller.WriteTextFile_User;
+import Design.Staff_Home.SharedSocketService;
 
 
 public class User_Home extends JFrame {
@@ -56,6 +67,12 @@ public class User_Home extends JFrame {
 	private JPanel contentPane;
 	private JTextField tf_username;
 	private JComboBox cbb_gioitinh;
+	private JTextArea tf_chat;
+	private JTextArea tf_giaodien;
+	private JButton bt_gui;
+	private static Socket socket;
+	private static final String url = "172.20.10.2";
+	private static final int PORT = 8000;
 	
 	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	
@@ -70,6 +87,21 @@ public class User_Home extends JFrame {
 				}
 			}
 		});
+	}
+	
+
+	public class SharedSocketService {
+
+		public static synchronized Socket getSocket() {
+			if (socket == null) {
+				try {
+					socket = new Socket(url, PORT);
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+			}
+			return socket;
+		}
 	}
 	
 	public void load_data() {
@@ -143,7 +175,7 @@ public class User_Home extends JFrame {
 		
 		JPanel menu = new JPanel();
 		menu.setBackground(new Color(253, 245, 230));
-		menu.setBounds(0, 0, 0, 750);
+		menu.setBounds(0, 0, 244, 750);
 		pn_home.add(menu);
 		menu.setLayout(null);
 		
@@ -197,6 +229,12 @@ public class User_Home extends JFrame {
 		lb_chinhsach.setBounds(0, 344, 244, 42);
 		menu.add(lb_chinhsach);
 		
+		JLabel lb_message = new JLabel("TRÒ CHUYỆN");
+		lb_message.setHorizontalAlignment(SwingConstants.CENTER);
+		lb_message.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lb_message.setBounds(0, 387, 244, 42);
+		menu.add(lb_message);
+		
 		JLabel lb_dangxuat = new JLabel("ĐĂNG XUẤT");
 		lb_dangxuat.addMouseListener(new MouseAdapter() {
 			@Override
@@ -208,7 +246,7 @@ public class User_Home extends JFrame {
 		});
 		lb_dangxuat.setHorizontalAlignment(SwingConstants.CENTER);
 		lb_dangxuat.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lb_dangxuat.setBounds(0, 387, 244, 42);
+		lb_dangxuat.setBounds(0, 425, 244, 42);
 		menu.add(lb_dangxuat);
 		
 		JLabel lb_close = new JLabel("");
@@ -237,12 +275,12 @@ public class User_Home extends JFrame {
 		lb_avatar.setIcon(new ImageIcon(Staff_Home.class.getResource("/Design/avatar.png")));
 		
 		Form_Login dk = new Form_Login();
-		String us = Form_Login.userName;
+		String username = Form_Login.userName;
 		
 		tf_username = new JTextField();
 		tf_username.setBackground(new Color(250, 250, 210));
 		tf_username.setFont(new Font("Tahoma", Font.BOLD, 20));
-		tf_username.setText(us);
+		tf_username.setText(username);
 		tf_username.setBounds(85, 40, 141, 25);
 		pn_admin.add(tf_username);
 		tf_username.setColumns(10);
@@ -280,12 +318,12 @@ public class User_Home extends JFrame {
 		pn_trangchu.add(lb_anhnen);
 		lb_anhnen.setIcon(new ImageIcon(User_Home.class.getResource("/Design/back_user.jpg")));
 		
-		JLabel lb_wtts = new JLabel("WELCOME TO THE STAYLEARN");
-		lb_wtts.setHorizontalAlignment(SwingConstants.CENTER);
+		JLabel lb_wtts = new JLabel("WELCOME TO STAYLEARN");
+		lb_wtts.setHorizontalAlignment(SwingConstants.LEFT);
 		lb_wtts.setForeground(new Color(220, 20, 60));
 		lb_wtts.setFont(new Font("Comic Sans MS", Font.BOLD, 40));
 		lb_wtts.setBackground(new Color(255, 255, 255, 100));
-		lb_wtts.setBounds(0, 25, 650, 49);
+		lb_wtts.setBounds(10, 25, 650, 49);
 		pn_wel.add(lb_wtts);
 		
 		
@@ -485,6 +523,28 @@ public class User_Home extends JFrame {
 		bt_cake.setIcon(new ImageIcon(Staff_Home.class.getResource("/Design/cake.png")));
 		pn_home.add(bt_cake);
 		
+		JPanel message = new JPanel();
+		// account.setBackground(new Color(255, 255, 255));
+		container.add(message, "message");
+		message.setLayout(null);
+
+		tf_chat = new JTextArea();
+		tf_chat.setBackground(new Color(128, 255, 255));
+		tf_chat.setBounds(271, 580, 900, 50);
+		message.add(tf_chat);
+
+		bt_gui = new JButton("GỬI");
+		bt_gui.setBounds(1181, 580, 60, 50);
+		message.add(bt_gui);
+
+		JTextArea tf_giaodien = new JTextArea();
+		tf_giaodien.setFont(new Font("Monospaced", Font.PLAIN, 20));
+		tf_giaodien.setBounds(271, 10, 900, 530);
+		JScrollPane thanhcuon = new JScrollPane(tf_giaodien);
+
+		thanhcuon.setBounds(271, 10, 900, 530);
+		message.add(thanhcuon);
+		
 		bt_in.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
 	            String studentID = tf_mahocvien.getText();
@@ -571,7 +631,7 @@ public class User_Home extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				Connection con = new Controller.DBController().getConnection();
-				String sql = "Update staylearn.student set name = ?, gender = ?, dateofbirth = ?, address = ?, phonenumber = ?, email = ?, Parentname = ?, phone_parent = ?, day_arrive = ?";
+				String sql = "Update staylearn.student set name = ?, gender = ?, dateofbirth = ?, address = ?, phonenumber = ?, email = ?, Parentname = ?, phone_parent = ?, day_arrive = ? WHERE username = ?";
 				try {
 					
 					String formattedDate1 = sdf.format(tf_ngaysinh.getDate());
@@ -586,6 +646,7 @@ public class User_Home extends JFrame {
 					stm.setString(7, tf_tenphuhuynh.getText());
 					stm.setString(8, tf_sdtph.getText());
 					stm.setString(9, formattedDate2);
+					stm.setString(10, username);
 					stm.execute();
 					
 					stm.execute();
@@ -596,6 +657,67 @@ public class User_Home extends JFrame {
 					JOptionPane.showMessageDialog(null, "Cập nhập không thành công");
 					e2.printStackTrace();
 				}
+			}
+		});
+		
+		SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
+			@Override
+			protected Void doInBackground() throws Exception {
+				try {
+					System.out.println("Kết nối đến server...");
+					String sang = Form_Login.staffName;
+					System.out.println(sang);
+
+					socket = SharedSocketService.getSocket();
+					
+					System.out.println("Đã kết nối xong");
+
+					bt_gui.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							String message = tf_chat.getText();
+							try {
+								
+								if(message != null && !message.isEmpty()) {
+								OutputStream output = socket.getOutputStream();
+								PrintWriter writer = new PrintWriter(output, true);
+								writer.println(username+": "+message);
+								tf_chat.setText("");
+								System.out.println("Đã gửi tin nhắn: " + message);}
+							} catch (IOException ex) {
+								ex.printStackTrace();
+							}
+						}
+					});
+
+					 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			            String line;
+			            while ((line = reader.readLine()) != null) {
+			                final String message1 = line;
+			                
+			                SwingUtilities.invokeLater(() -> tf_giaodien.append(message1 + "\n"));
+
+			                // Kiểm tra xem kết nối đã đóng chưa
+			                if (socket.isClosed()) {
+			                    break; // Thoát khỏi vòng lặp nếu kết nối đã đóng
+			                }
+			            }
+
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+
+				return null;
+			}
+		};
+
+		lb_message.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				CardLayout c1 = (CardLayout) (container.getLayout());
+				c1.show(container, "message");
+				menu.setSize(0, 750);
+				worker.execute(); // Khởi chạy SwingWorker ở đây
 			}
 		});
 		

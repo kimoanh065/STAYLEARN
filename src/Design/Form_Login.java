@@ -6,6 +6,7 @@ import javax.swing.border.EmptyBorder;
 import Controller.DBController;
 import java.awt.*;
 import java.awt.event.*;
+import java.net.Socket;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
