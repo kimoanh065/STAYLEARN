@@ -169,7 +169,7 @@ public class Client {
             e.printStackTrace();
         }
     }
-
+    
     public void getTopics(int from, int to) {
         try {
             if (aesKey != null) {
@@ -212,6 +212,35 @@ public class Client {
     public void capnhapthongtingv(String command, String data1, String data2, String data3, String data4, String data5, String data6, String data7, String data8) {
         try {
             String message = command + "," + data1 + "," + data2 + "," + data3 + "," + data4 + "," + data5 + "," + data6 + "," + data7 + "," + data8;
+            if (aesKey != null) {
+                out.println(MaHoaAES.maHoa(message, aesKey));
+                System.out.println("Sent to server: " + message);
+            } else {
+                System.err.println("Khóa AES null, không thể mã hóa thông điệp cập nhật thông tin giảng viên.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void writetofilestaff(String studentID, String fullName, String gender, String dob, String address, String phoneNumber, String email, String position, String staffname) {
+        try {
+            String message = "/writetofilestaff" + "," + studentID + "," + fullName + "," + gender + "," + dob + "," + address + "," + phoneNumber + "," + email + "," + position + "," + staffname;
+            if (aesKey != null) {
+                out.println(MaHoaAES.maHoa(message, aesKey));
+                System.out.println("Sent to server: " + message);
+            } else {
+                System.err.println("Khóa AES null, không thể mã hóa thông điệp cập nhật thông tin giảng viên.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void writetofileuser(String studentID, String fullName, String gender, String dob, String phoneNumber,
+            String email, String address, String parentName, String parentPhoneNumber, String joinDate, String username) {
+        try {
+            String message = "/writetofileuser" + "," + studentID + "," + fullName + "," + gender + "," + dob + "," + phoneNumber + "," + email + "," + address  + "," + parentName + "," + parentPhoneNumber + "," + joinDate + "," + username;
             if (aesKey != null) {
                 out.println(MaHoaAES.maHoa(message, aesKey));
                 System.out.println("Sent to server: " + message);

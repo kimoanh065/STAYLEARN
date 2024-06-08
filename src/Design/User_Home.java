@@ -63,7 +63,6 @@ import javax.swing.text.StyledDocument;
 import com.toedter.calendar.JDateChooser;
 
 import Controller.Client;
-import Controller.WriteTextFile_User;
 
 import javax.swing.JTable;
 import javax.swing.border.CompoundBorder;
@@ -84,7 +83,7 @@ public class User_Home extends JFrame {
 	private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	public static JTextField tf_username;
+	JTextField tf_username;
 	public static JComboBox cbb_gioitinh;
 	JScrollPane thanhcuon1;
 	private JTextArea tf_chat;
@@ -877,8 +876,8 @@ public class User_Home extends JFrame {
 	            String parentName = tf_tenphuhuynh.getText();
 	            String parentPhoneNumber = tf_sdtph.getText();
 	            String joinDate = sdf.format(tf_datett.getDate());
-
-	            WriteTextFile_User.writeToFile(studentID, fullName, gender, dob, phoneNumber, email, address, parentName, parentPhoneNumber, joinDate);
+	            String username = tf_username.getText();
+	            client.writetofileuser(studentID, fullName, gender, dob, phoneNumber, email, address, parentName, parentPhoneNumber, joinDate, username);
 	        }
 	    });
 		

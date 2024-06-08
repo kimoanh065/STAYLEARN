@@ -1,0 +1,8 @@
+Mã nhân viên: GV-02
+Họ và tên: POS
+Giới tính: Nam
+Ngày sinh: 2024-05-01
+Địa chỉ: Đà Nẵng
+Số điện thoại: 657888888
+Email: Kim
+Vị trí: Giám đốc

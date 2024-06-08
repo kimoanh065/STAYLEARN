@@ -1,6 +1,9 @@
 package Controller;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -14,6 +17,10 @@ import java.util.Date;
 import java.util.Vector;
 
 import javax.crypto.SecretKey;
+
+import Design.Form_Login;
+import Design.Staff_Home;
+import Design.User_Home;
 
 public class ClientHandler extends Thread {
     private Socket mysocket;
@@ -203,6 +210,45 @@ public class ClientHandler extends Thread {
                     String password = parts[2].trim();
                     register(username, password);
                 }
+                
+                else if (gminput.startsWith("/writetofilestaff")) {
+                	String[] parts = gminput.split(",", 10);
+                    if (parts.length < 9) {
+                        out.println(MaHoaAES.maHoa("Invalid format. Use /register <username> <password>", aeskey));
+                        continue;
+                    }
+                    String studentID = parts[1].trim();
+    				String fullName = parts[2].trim();
+    				String gender = parts[3].trim();
+    				String dob = parts[4].trim();
+    				String address = parts[5].trim();
+    				String phoneNumber = parts[6].trim();
+    				String email = parts[7].trim();
+
+    				String position = parts[8].trim();
+    				String staffname = parts[9].trim();
+                    writeToFileStaff(studentID, fullName, gender, dob, address, phoneNumber, email, position, staffname);
+                }
+                
+                else if (gminput.startsWith("/writetofileuser")) {
+                	String[] parts = gminput.split(",", 12);
+                    if (parts.length < 11) {
+                        out.println(MaHoaAES.maHoa("Invalid format. Use /register <username> <password>", aeskey));
+                        continue;
+                    }
+                    String studentID = parts[1].trim();
+    				String fullName = parts[2].trim();
+    				String gender = parts[3].trim();
+    				String dob = parts[4].trim();
+    				String phoneNumber = parts[5].trim();
+    				String email = parts[6].trim();
+    				String address = parts[7].trim();
+    				String parentName = parts[8].trim();
+    				String parentPhoneNumber = parts[9].trim();
+    				String joinDate = parts[10].trim();  
+    				String username = parts[11].trim();  
+    				writeToFileUser(studentID, fullName, gender, dob, phoneNumber, email, address, parentName, parentPhoneNumber, joinDate, username);
+                }  
                 else {
                     String message = gminput;
                     System.out.println("Message nhận: " + message);
@@ -545,4 +591,52 @@ public class ClientHandler extends Thread {
             e.printStackTrace();
         }
     }
+    
+    public static void writeToFileStaff(String studentID, String fullName, String gender, String dob, String address,
+            String phoneNumber, String email, String position, String staffname) {
+			try {
+				File file = new File("thongtin_staff_" + staffname +".txt");
+				FileWriter writer = new FileWriter(file);
+				
+				writer.write("Mã nhân viên: " + studentID + "\n");
+				writer.write("Họ và tên: " + fullName + "\n");
+				writer.write("Giới tính: " + gender + "\n");
+				writer.write("Ngày sinh: " + dob + "\n");
+				writer.write("Địa chỉ: " + address + "\n");
+				writer.write("Số điện thoại: " + phoneNumber + "\n");
+				writer.write("Email: " + email + "\n");
+				writer.write("Vị trí: " + position + "\n");
+				
+				writer.close();
+				System.out.println("Thông tin đã được lưu vào tệp thongtin_staff_" + staffname + ".txt");
+			} catch (IOException e) {
+				System.out.println("Đã xảy ra lỗi khi ghi vào tệp.");
+				e.printStackTrace();
+			}
+	}
+    
+    public static void writeToFileUser(String studentID, String fullName, String gender, String dob, String phoneNumber,
+            String email, String address, String parentName, String parentPhoneNumber, String joinDate, String username) {
+			try {
+				File file = new File("thongtinuser_" + username +".txt");
+				FileWriter writer = new FileWriter(file);
+				
+				writer.write("Mã học viên: " + studentID + "\n");
+				writer.write("Họ và tên: " + fullName + "\n");
+				writer.write("Giới tính: " + gender + "\n");
+				writer.write("Ngày sinh: " + dob + "\n");
+				writer.write("Số điện thoại: " + phoneNumber + "\n");
+				writer.write("Email: " + email + "\n");
+				writer.write("Địa chỉ: " + address + "\n");
+				writer.write("Tên phụ huynh: " + parentName + "\n");
+				writer.write("Số điện thoại phụ huynh: " + parentPhoneNumber + "\n");
+				writer.write("Ngày đến trung tâm: " + joinDate + "\n");
+				
+				writer.close();
+				System.out.println("Thông tin đã được lưu vào tệp thongtinuser_" + username +".txt");
+			} catch (IOException e) {
+				System.out.println("Đã xảy ra lỗi khi ghi vào tệp.");
+				e.printStackTrace();
+			}
+			}
 }

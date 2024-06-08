@@ -14,8 +14,6 @@ import javax.swing.border.LineBorder;
 import com.toedter.calendar.JDateChooser;
 
 import Controller.Client;
-import Controller.WriteTextFile_Staff;
-import Controller.WriteTextFile_User;
 import Design.*;
 
 import java.awt.BorderLayout;
@@ -84,7 +82,7 @@ public class Staff_Home extends JFrame {
 	private JTextField tf_email;
 	private JTextField tf_diachi;
 	private JComboBox tf_vitri;
-	private JTextField tf_staffname;
+	JTextField tf_staffname;
 	private JComboBox cbb_gioitinh;
 	private JTextArea tf_chat;
 	private JTextArea tf_giaodien;
@@ -998,8 +996,8 @@ public class Staff_Home extends JFrame {
 				String email = tf_email.getText();
 
 				String position = (String) tf_vitri.getSelectedItem();
-				WriteTextFile_Staff.writeToFile(studentID, fullName, gender, dob, address, phoneNumber, email,
-						position);
+				String staffname = tf_staffname.getText();
+				client.writetofilestaff(studentID, fullName, gender, dob, address, phoneNumber, email, position, staffname);
 			}
 		});
 
