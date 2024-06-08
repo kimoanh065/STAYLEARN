@@ -1,7 +1,9 @@
 package Design;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Image;
@@ -11,9 +13,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -25,6 +29,11 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -37,44 +46,70 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 import com.toedter.calendar.JDateChooser;
 
-import Controller.DBController;
+import Controller.Client;
 import Controller.WriteTextFile_User;
-import Design.Staff_Home.SharedSocketService;
+
+import javax.swing.JTable;
+import javax.swing.border.CompoundBorder;
+import javax.swing.JCheckBox;
 
 
 public class User_Home extends JFrame {
-	private JTextField tf_mahocvien;
-	private JTextField tf_hovaten;
-	private JDateChooser tf_ngaysinh;
-	private JTextField tf_sdt;
-	private JTextField tf_email;
-	private JTextField tf_diachi;
-	private JTextField tf_tenphuhuynh;
-	private JTextField tf_sdtph;
-	private JDateChooser tf_datett;
-
+	public static JTextField tf_mahocvien;
+	public static JTextField tf_hovaten;
+	public static JDateChooser tf_ngaysinh;
+	public static JTextField tf_sdt;
+	public static JTextField tf_email;
+	public static JTextField tf_diachi;
+	public static JTextField tf_tenphuhuynh;
+	public static JTextField tf_sdtph;
+	public static JDateChooser tf_datett;
+	Vector vT, vD;
+	private final ExecutorService executorService = Executors.newFixedThreadPool(10);
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
-	private JTextField tf_username;
-	private JComboBox cbb_gioitinh;
+	public static JTextField tf_username;
+	public static JComboBox cbb_gioitinh;
+	JScrollPane thanhcuon1;
 	private JTextArea tf_chat;
-	private JTextArea tf_giaodien;
+	private JTextPane textPane;
 	private JButton bt_gui;
 	private static Socket socket;
-	private static final String url = "172.20.10.2";
-	private static final int PORT = 8000;
 	
-	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	public static JTable table;
+	public static JTable table_2;
+	private JTextField tf_nguoithu;
+	
+	
+	private DefaultTableModel model;
+    private JCheckBox chckbxNewCheckBox;
+    private JCheckBox chckbxChngTrnhPh;
+    private JCheckBox chckbxChngTrnhNng;
+    private JDateChooser tf_ngaythu;
+    Client client;
+    
+    public static String tenNguoiNop;
+    public static String tenKhoaHoc;
+    public static int soTien;
+    public static String hinhThucThanhToan;
+    public static Date ngayThu;
 	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -89,69 +124,64 @@ public class User_Home extends JFrame {
 		});
 	}
 	
+	public void loadDataToTable2() {
+		executorService.submit(() -> {
+			try {
+	        	DefaultTableModel model = (DefaultTableModel) table_2.getModel();
+	            client.sendtoServer("/loaddatatotable2", "");
+	            String response = client.readMessage();
+	            System.out.println("Received data from server: ");  // In dữ liệu sau khi nhận
 
-	public class SharedSocketService {
+	            Vector<Vector<String>> data = deserializeVector(response);
+	            model.setRowCount(0); // Xóa dữ liệu hiện tại trong bảng
 
-		public static synchronized Socket getSocket() {
-			if (socket == null) {
-				try {
-					socket = new Socket(url, PORT);
-				} catch (Exception e) {
-					// TODO: handle exception
-				}
-			}
-			return socket;
-		}
+	            for (Vector<String> row : data) {
+	                model.addRow(row);
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+		});
 	}
 	
 	public void load_data() {
-		Connection conn = new Controller.DBController().getConnection();
-		String sql = "SELECT idstudent, name, gender, dateofbirth, address, phonenumber, email, Parentname, phone_parent, day_arrive FROM staylearn.student WHERE username = ?;" ;
-		PreparedStatement stm;
-		try {
-			stm = conn.prepareStatement(sql);
-			stm.setString(1, tf_username.getText());
-			ResultSet rs = stm.executeQuery();
-			if (rs.next()) {
-				tf_mahocvien.setText(rs.getString("idstudent"));
-				tf_hovaten.setText(rs.getString("name"));
-				cbb_gioitinh.setSelectedItem(rs.getString("gender"));
-				String ngaySinhStr = rs.getString("dateofbirth");
-				if (ngaySinhStr != null && !ngaySinhStr.isEmpty()) {
-				    try {
-				        Date ngaySinhDate = sdf.parse(ngaySinhStr);
-				        tf_ngaysinh.setDate(ngaySinhDate);
-				    } catch (ParseException ex) {
-				        
-				        ex.printStackTrace();
-				    }
-				}
-				
-				tf_diachi.setText(rs.getString("address"));
-				tf_sdt.setText(rs.getString("phonenumber"));
-				tf_email.setText(rs.getString("email"));
-				tf_tenphuhuynh.setText(rs.getString("Parentname"));
-				tf_sdtph.setText(rs.getString("phone_parent"));
-				String ngaydenStr = rs.getString("day_arrive");
-				if (ngaydenStr != null && !ngaydenStr.isEmpty()) {
-				    try {
-				        Date ngaydenDate = sdf.parse(ngaydenStr);
-				        tf_datett.setDate(ngaydenDate);
-				    } catch (ParseException ex) {
-				        
-				        ex.printStackTrace();
-				    }
-				}
-
-            }
-			else {
-				return;
-			}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		executorService.submit(() -> {
+			try {
+		        client.sendtoServer("/loadDataStudent", tf_username.getText());
+		        String response = client.readMessage();
+		        String[] data = response.split(";;;");
+		        if (data.length >= 10) {
+		            tf_mahocvien.setText(data[0]);
+		            tf_hovaten.setText(data[1]);
+		            cbb_gioitinh.setSelectedItem(data[2]);
+		            if (data[3] != null && !data[3].isEmpty()) {
+		                try {
+		                    Date ngaySinhDate = sdf.parse(data[3]);
+		                    tf_ngaysinh.setDate(ngaySinhDate);
+		                } catch (ParseException ex) {
+		                    ex.printStackTrace();
+		                }
+		            }
+		            tf_diachi.setText(data[4]);
+		            tf_sdt.setText(data[5]);
+		            tf_email.setText(data[6]);
+		            tf_tenphuhuynh.setText(data[7]);
+		            tf_sdtph.setText(data[8]);
+		            if (data[9] != null && !data[9].isEmpty()) {
+		                try {
+		                    Date ngaydenDate = sdf.parse(data[9]);
+		                    tf_datett.setDate(ngaydenDate);
+		                } catch (ParseException ex) {
+		                    ex.printStackTrace();
+		                }
+		            }
+		        }
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
+		});
 	}
+
 	
 	public User_Home() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -175,9 +205,15 @@ public class User_Home extends JFrame {
 		
 		JPanel menu = new JPanel();
 		menu.setBackground(new Color(253, 245, 230));
-		menu.setBounds(0, 0, 244, 750);
+		menu.setBounds(0, 0, 0, 750);
 		pn_home.add(menu);
 		menu.setLayout(null);
+		
+		JPanel pn_admin = new JPanel();
+		pn_admin.setBackground(new Color(189, 183, 107));
+		pn_admin.setBounds(0, 67, 236, 653);
+		pn_home.add(pn_admin);
+		pn_admin.setLayout(null);
 		
 		JLabel lbl_title = new JLabel("ANH NGỮ STAYLEARN");
 		lbl_title.setHorizontalAlignment(SwingConstants.CENTER);
@@ -211,11 +247,11 @@ public class User_Home extends JFrame {
 		lb_hocphi.setBounds(0, 214, 244, 42);
 		menu.add(lb_hocphi);
 		
-		JLabel lb_cauhinh = new JLabel("CẤU HÌNH");
-		lb_cauhinh.setHorizontalAlignment(SwingConstants.CENTER);
-		lb_cauhinh.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lb_cauhinh.setBounds(0, 257, 244, 42);
-		menu.add(lb_cauhinh);
+		JLabel lb_dkct = new JLabel("CHƯƠNG TRÌNH HỌC");
+		lb_dkct.setHorizontalAlignment(SwingConstants.CENTER);
+		lb_dkct.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lb_dkct.setBounds(0, 257, 244, 42);
+		menu.add(lb_dkct);
 		
 		JLabel lb_trogiup = new JLabel("TRỢ GIÚP");
 		lb_trogiup.setHorizontalAlignment(SwingConstants.CENTER);
@@ -244,6 +280,9 @@ public class User_Home extends JFrame {
 		        loginForm.setVisible(true);
 			}
 		});
+		
+		client = Form_Login.runClient(Form_Login.userName);
+		
 		lb_dangxuat.setHorizontalAlignment(SwingConstants.CENTER);
 		lb_dangxuat.setFont(new Font("Tahoma", Font.BOLD, 14));
 		lb_dangxuat.setBounds(0, 425, 244, 42);
@@ -263,11 +302,6 @@ public class User_Home extends JFrame {
 		lb_menu.setIcon(new ImageIcon(Staff_Home.class.getResource("/Design/menu.jpg")));
 		pn_home.add(lb_menu);
 		
-		JPanel pn_admin = new JPanel();
-		pn_admin.setBackground(new Color(189, 183, 107));
-		pn_admin.setBounds(0, 67, 236, 653);
-		pn_home.add(pn_admin);
-		pn_admin.setLayout(null);
 		
 		JLabel lb_avatar = new JLabel("");
 		lb_avatar.setBounds(10, 11, 85, 81);
@@ -537,13 +571,299 @@ public class User_Home extends JFrame {
 		bt_gui.setBounds(1181, 580, 60, 50);
 		message.add(bt_gui);
 
-		JTextArea tf_giaodien = new JTextArea();
-		tf_giaodien.setFont(new Font("Monospaced", Font.PLAIN, 20));
-		tf_giaodien.setBounds(271, 10, 900, 530);
-		JScrollPane thanhcuon = new JScrollPane(tf_giaodien);
+		textPane = new JTextPane();
+        textPane.setFont(new Font("Monospaced", Font.BOLD, 18));
+        textPane.setEditable(false);
+        textPane.setBorder(new LineBorder(Color.GRAY, 1));
+        
+        JScrollPane scrollPane_1 = new JScrollPane(textPane);
+        scrollPane_1.setBounds(271, 61, 900, 447);
+        message.add(scrollPane_1);
+		
+	
+		
+		JPanel hocphi = new JPanel();
+		hocphi.setBackground(new Color(255, 255, 255));
+		container.add(hocphi, "hocphi");
+		hocphi.setLayout(null);
+		
+		JPanel hocphi_1 = new JPanel();
+		hocphi_1.setBounds(281, 52, 945, 513);
+		hocphi.add(hocphi_1);
+		hocphi_1.setLayout(null);
 
-		thanhcuon.setBounds(271, 10, 900, 530);
-		message.add(thanhcuon);
+		JLabel lb_hdhp = new JLabel("Hóa đơn học phí");
+		lb_hdhp.setBounds(384, 26, 220, 45);
+		hocphi_1.add(lb_hdhp);
+		lb_hdhp.setFont(new Font("Tahoma", Font.BOLD, 24));
+
+		JLabel lb_csnn = new JLabel("CƠ SỞ NGOẠI NGỮ - STAYLEARN ");
+		lb_csnn.setBounds(184, 83, 311, 27);
+		lb_csnn.setFont(new Font("Tahoma", Font.BOLD, 17));
+		hocphi_1.add(lb_csnn);
+
+		JLabel lb_đvtt = new JLabel("Đơn vị thu tiền:");
+		lb_đvtt.setBounds(51, 83, 123, 26);
+		lb_đvtt.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		hocphi_1.add(lb_đvtt);
+
+		JLabel lb_dchp = new JLabel("Địa chỉ:");
+		lb_dchp.setBounds(51, 121, 75, 26);
+		lb_dchp.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		hocphi_1.add(lb_dchp);
+
+		JLabel lb_dchp1 = new JLabel("xx, đường xx, phường xx, quận xx, tỉnh Đà Nẵng");
+		lb_dchp1.setBounds(139, 121, 378, 26);
+		lb_dchp1.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		hocphi_1.add(lb_dchp1);
+
+		JLabel lb_stk = new JLabel("Số tài khoản:");
+		lb_stk.setBounds(51, 158, 116, 26);
+		lb_stk.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		hocphi_1.add(lb_stk);
+
+		JLabel lb_mst = new JLabel("MST:  .............................................");
+		lb_mst.setBounds(467, 158, 220, 26);
+		lb_mst.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		hocphi_1.add(lb_mst);
+
+		JLabel lb_stk1 = new JLabel("XXXX0023213");
+		lb_stk1.setBounds(171, 158, 173, 26);
+		lb_stk1.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		hocphi_1.add(lb_stk1);
+
+		JLabel lb_hvtnn = new JLabel("Họ tên người nộp:");
+		lb_hvtnn.setBounds(51, 195, 141, 26);
+		lb_hvtnn.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		hocphi_1.add(lb_hvtnn);
+
+		tf_nguoithu = new JTextField();
+		tf_nguoithu.setBounds(197, 195, 256, 26);
+		hocphi_1.add(tf_nguoithu);
+		tf_nguoithu.setColumns(10);
+
+		JLabel lb_tkh_1 = new JLabel("Tên khóa học:");
+		lb_tkh_1.setBounds(51, 232, 123, 26);
+		lb_tkh_1.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		hocphi_1.add(lb_tkh_1);
+
+		JLabel lb_httt = new JLabel("Hình thức thanh toán:");
+		lb_httt.setBounds(51, 273, 173, 26);
+		lb_httt.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		hocphi_1.add(lb_httt);
+
+		JLabel lb_stk_2_1 = new JLabel("Người thu tiền");
+		lb_stk_2_1.setBounds(715, 404, 116, 26);
+		lb_stk_2_1.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		hocphi_1.add(lb_stk_2_1);
+
+
+		table = new JTable();
+		table.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		DefaultTableModel model = new DefaultTableModel();
+		model.addColumn("STT");
+//		model.addColumn("Tên người nộp");
+//		model.addColumn("Tên khóa học");
+//		model.addColumn("Số tiền");
+//		model.addColumn("Hình thức thanh toán");
+//		model.addColumn("Ngày thu");
+		table.setModel(model);
+		
+		JComboBox ccb_tkh = new JComboBox();
+		ccb_tkh.setBounds(171, 232, 282, 27);
+		ccb_tkh.addItem("Khóa học cơ bản");
+		ccb_tkh.addItem("Khóa học phổ thông");
+		ccb_tkh.addItem("Khóa học nâng cao");
+		hocphi_1.add(ccb_tkh);
+		
+		JLabel lb_ngaythu = new JLabel("Ngày thu:");
+		lb_ngaythu.setFont(new Font("Tahoma", Font.PLAIN, 17));
+		lb_ngaythu.setBounds(516, 195, 123, 26);
+		hocphi_1.add(lb_ngaythu);
+		
+		JComboBox cbb_httt = new JComboBox();
+		cbb_httt.setBounds(233, 273, 220, 27);
+		cbb_httt.addItem("Chuyển khoản");
+		cbb_httt.addItem("Tiền mặt");
+		hocphi_1.add(cbb_httt);
+		
+		tf_ngaythu = new JDateChooser();
+		tf_ngaythu.setBounds(602, 198, 190, 26);
+		hocphi_1.add(tf_ngaythu);
+		
+		JButton bt_xn = new JButton("Xác nhận");
+		bt_xn.setFont(new Font("Tahoma", Font.BOLD, 15));
+		bt_xn.setBounds(695, 579, 119, 30);
+		hocphi.add(bt_xn);
+		
+		Map<String, Integer> khoaHocSoTienMap = new HashMap<>();
+		khoaHocSoTienMap.put("Khóa học cơ bản", 1700000);
+		khoaHocSoTienMap.put("Khóa học phổ thông", 3000000);
+		khoaHocSoTienMap.put("Khóa học nâng cao", 5400000);
+
+		bt_xn.addActionListener(new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        // Lấy dữ liệu từ các trường nhập liệu
+		        String tenNguoiNop = tf_nguoithu.getText();
+		        String tenKhoaHoc = ccb_tkh.getSelectedItem().toString();
+		        int soTien = khoaHocSoTienMap.get(tenKhoaHoc); // Lấy số tiền từ Map
+		        String hinhThucThanhToan = cbb_httt.getSelectedItem().toString();
+		         
+		        Date ngayThu = tf_ngaythu.getDateEditor().getDate();
+		        String username = tf_username.getText();
+
+		        // Xóa trống các trường nhập liệu sau khi thêm dữ liệu thành công (nếu cần)
+		        tf_nguoithu.setText("");
+		        
+		        client.xacnhanhocphi("/hocphi", tenNguoiNop, tenKhoaHoc, soTien, hinhThucThanhToan, ngayThu, username);
+		        
+		        try {
+					String message = client.readMessage();
+					if (message.equals("success")){
+						System.out.println("Them du lieu thanh cong");
+					}
+					else {
+						System.out.println("Khong thanh cong");
+					}
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		    }
+		});
+		
+		
+		JPanel lichhoc = new JPanel();
+		lichhoc.setBackground(SystemColor.window);
+		container.add(lichhoc, "lichhoc");
+		lichhoc.setLayout(null);
+
+		JLabel titleLabel = new JLabel("Lịch Học", SwingConstants.CENTER);
+		titleLabel.setFont(new Font("Serif", Font.BOLD, 24));
+		// titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+		titleLabel.setBounds(166, 10, 291, 50);
+		lichhoc.add(titleLabel);
+		
+		
+		JLabel giohoc1 = new JLabel("Sáng");
+		giohoc1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		giohoc1.setBounds(976, 25, 114, 17);
+		lichhoc.add(giohoc1);
+		int a = 40;
+		for (int i = 1; i < 6; i++) {
+
+			JLabel tiet = new JLabel("Tiết " + i + " : " + (i + 6) + "h30");
+			tiet.setFont(new Font("Tahoma", Font.PLAIN, 12));
+			tiet.setBounds(976, a, 114, 17);
+			lichhoc.add(tiet);
+			
+			a = a + 15;
+		}
+		
+		
+		JLabel giohoc2 = new JLabel("Chiều");
+		giohoc2.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		giohoc2.setBounds(1115, 25, 114, 17);
+		lichhoc.add(giohoc2);
+		int b=40 ;
+		for (int i = 6 ;i < 11; i++) {
+
+			JLabel tiet = new JLabel("Tiết " + i + " : " + (i + 7) + "h00");
+			tiet.setFont(new Font("Tahoma", Font.PLAIN, 12));
+			tiet.setBounds(1115, b, 114, 17);
+			lichhoc.add(tiet);
+			b = b + 15;
+		}
+		
+		String[] columnNames = { "", "THỨ 2", "THỨ 3", "THỨ 4", "THỨ 5", "THỨ 6", "THỨ 7", "CHỦ NHẬT" };
+		Object[][] data = { { "Tiết 1", "", "", "", "", "", "" }, { "Tiết 2", "", "", "", "", "", "" },
+				{ "Tiết 3", "", "", "", "", "", "" }, { "Tiết 4", "", "", "", "", "", "" },
+				{ "Tiết 5", "", "", "", "hi", "", "" }, { "Tiết 6", "", "", "", "", "", "" },
+				{ "Tiết 7", "", "", "", "", "", "" }, { "Tiết 8", "", "", "", "", "", "jello" },
+				{ "Tiết 9", "", "", "", "", "", "" } };
+
+		// Tạo JTable với DefaultTableModel
+		DefaultTableModel bang = new DefaultTableModel();
+		bang.addColumn("");
+		bang.addColumn("Thứ2");
+		bang.addColumn("Thứ3");
+		bang.addColumn("Thứ4");
+		bang.addColumn("Thứ5");
+		bang.addColumn("Thứ6");
+		bang.addColumn("Thứ7");
+		bang.addColumn("Chủ Nhật");
+		
+		table_2 = new JTable();
+		
+		table_2.setModel(bang);
+		
+		// Tùy chỉnh JTable
+		table_2.setRowHeight(50);
+		table_2.setFont(new Font("Serif", Font.PLAIN, 16));
+		table_2.getTableHeader().setFont(new Font("Serif", Font.BOLD, 18));
+		table_2.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		/// table.setBounds(274, 167, 900, 450);
+		// lichhoc.add(table);
+		// Thiết lập chiều rộng cho các cột
+		for (int i = 0; i < table_2.getColumnCount(); i++) {
+			table_2.getColumnModel().getColumn(i).setPreferredWidth(120);
+		}
+
+		// Renderer để tùy chỉnh màu sắc
+		DefaultTableCellRenderer cellRenderer = new DefaultTableCellRenderer() {
+			@Override
+			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+					boolean hasFocus, int row, int column) {
+				Component cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+				if (row % 2 == 0) {
+					cell.setBackground(new Color(220, 220, 220)); // Màu xám nhạt cho các hàng chẵn
+				} else {
+					cell.setBackground(Color.WHITE); // Màu trắng cho các hàng lẻ
+				}
+				if (isSelected) {
+					cell.setBackground(new Color(184, 207, 229)); // Màu xanh nhạt khi được chọn
+				}
+				return cell;
+			}
+		};
+
+		for (int i = 0; i < table_2.getColumnCount(); i++) {
+			table_2.getColumnModel().getColumn(i).setCellRenderer(cellRenderer);
+		}
+
+		// Tạo JScrollPane bao quanh JTable
+		JScrollPane thanhcuon1 = new JScrollPane(table_2);
+		thanhcuon1.setBounds(263, 170, 973, 429);
+		lichhoc.add(thanhcuon1);
+		loadDataToTable2();
+	
+		JButton diemdanh = new JButton("Điểm Danh");
+		diemdanh.setFont(new Font("Tahoma", Font.BOLD, 12));
+		diemdanh.setBounds(263, 122, 151, 38);
+		
+		lichhoc.add( diemdanh);
+		
+		diemdanh.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		        int selectedRow = table_2.getSelectedRow();
+		        int selectedColumn = table_2.getSelectedColumn();
+		        
+		        if (selectedRow != -1 && selectedColumn != -1) {
+		            Object value = table_2.getValueAt(selectedRow, selectedColumn);
+		            
+		            if (value == null || value.toString().isEmpty()) {
+		                // Nếu giá trị là null hoặc chuỗi rỗng
+		                System.out.println("Giá trị của ô là null hoặc rỗng.");
+		            } else {
+		                // Nếu giá trị không phải là null
+		                System.out.println("Giá trị của ô không phải là null." + value);
+		            }
+		        }
+		    }
+		});
+		
+		
 		
 		bt_in.addActionListener(new ActionListener() {
 	        public void actionPerformed(ActionEvent e) {
@@ -565,7 +885,7 @@ public class User_Home extends JFrame {
 		lb_menu.addMouseListener(new MouseAdapter() {
 		    @Override
 		    public void mouseClicked(MouseEvent e) {
-		        int targetWidth = 244; 
+		        int targetWidth = 240; 
 		        int step = 10;
 
 		        Timer timer = new Timer(10, new ActionListener() {
@@ -624,108 +944,153 @@ public class User_Home extends JFrame {
 				load_data();
 			}
 		});
+
 		
-		bt_sua.addActionListener(new ActionListener() {
-			
+		lb_lichhoc.addMouseListener(new MouseAdapter() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				Connection con = new Controller.DBController().getConnection();
-				String sql = "Update staylearn.student set name = ?, gender = ?, dateofbirth = ?, address = ?, phonenumber = ?, email = ?, Parentname = ?, phone_parent = ?, day_arrive = ? WHERE username = ?";
+			public void mouseClicked(MouseEvent e) {
+				CardLayout c1 = (CardLayout)(container.getLayout());
+				c1.show(container, "lichhoc");
+				menu.setSize(0,750);
+				
 				try {
-					
-					String formattedDate1 = sdf.format(tf_ngaysinh.getDate());
-					String formattedDate2 = sdf.format(tf_datett.getDate());
-					PreparedStatement stm = con.prepareStatement(sql);
-					stm.setString(1, tf_hovaten.getText());
-					stm.setString(2, cbb_gioitinh.getSelectedItem()+"");
-					stm.setString(3, formattedDate1);
-					stm.setString(4, tf_diachi.getText());
-					stm.setString(5, tf_sdt.getText());
-					stm.setString(6, tf_email.getText());
-					stm.setString(7, tf_tenphuhuynh.getText());
-					stm.setString(8, tf_sdtph.getText());
-					stm.setString(9, formattedDate2);
-					stm.setString(10, username);
-					stm.execute();
-					
-					stm.execute();
-					JOptionPane.showMessageDialog(null, "Cập nhập thành công");
-					
-				} catch (Exception e2) {
-					// TODO: handle exception
-					JOptionPane.showMessageDialog(null, "Cập nhập không thành công");
-					e2.printStackTrace();
+					loadDataToTable2();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 			}
 		});
-		
-		SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
+				
+		lb_hocphi.addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mouseClicked(MouseEvent e) {
+		        CardLayout cl = (CardLayout) container.getLayout();
+		        cl.show(container, "hocphi");
+		        menu.setSize(0,750);
+		        
+		    }
+		});
+		lb_dkct.addMouseListener(new MouseAdapter() {
 			@Override
-			protected Void doInBackground() throws Exception {
-				try {
-					System.out.println("Kết nối đến server...");
-					String sang = Form_Login.staffName;
-					System.out.println(sang);
-
-					socket = SharedSocketService.getSocket();
-					
-					System.out.println("Đã kết nối xong");
-
-					bt_gui.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							String message = tf_chat.getText();
-							try {
-								
-								if(message != null && !message.isEmpty()) {
-								OutputStream output = socket.getOutputStream();
-								PrintWriter writer = new PrintWriter(output, true);
-								writer.println(username+": "+message);
-								tf_chat.setText("");
-								System.out.println("Đã gửi tin nhắn: " + message);}
-							} catch (IOException ex) {
-								ex.printStackTrace();
-							}
-						}
-					});
-
-					 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			            String line;
-			            while ((line = reader.readLine()) != null) {
-			                final String message1 = line;
-			                
-			                SwingUtilities.invokeLater(() -> tf_giaodien.append(message1 + "\n"));
-
-			                // Kiểm tra xem kết nối đã đóng chưa
-			                if (socket.isClosed()) {
-			                    break; // Thoát khỏi vòng lặp nếu kết nối đã đóng
-			                }
-			            }
-
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-
-				return null;
+			public void mouseClicked(MouseEvent e) {
+				  CardLayout cl = (CardLayout) container.getLayout();
+			        cl.show(container, "dkct");
+			        menu.setSize(0,750);
 			}
-		};
+		});
+		
+		bt_sua.addActionListener(new ActionListener() {
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		    	executorService.submit(() -> {
+		    		try {
+			            String name = tf_hovaten.getText();
+			            String gender = cbb_gioitinh.getSelectedItem().toString();
+			            String dateOfBirth = sdf.format(tf_ngaysinh.getDate());
+			            String address = tf_diachi.getText();
+			            String phoneNumber = tf_sdt.getText();
+			            String email = tf_email.getText();
+			            String parentName = tf_tenphuhuynh.getText();
+			            String phoneParent = tf_sdtph.getText();
+			            String dayArrive = sdf.format(tf_datett.getDate());
+			            String username = tf_username.getText();
 
+			            client.capnhapthongtin("/updateStudent", name, gender, dateOfBirth, address, phoneNumber, email, parentName, phoneParent, dayArrive, username);
+			            String response = client.readMessage();
+			            if (response.equals("success")) {
+			                JOptionPane.showMessageDialog(null, "Cập nhập thành công");
+			            } else {
+			                JOptionPane.showMessageDialog(null, "Cập nhập không thành công");
+			            }
+			        } catch (Exception e2) {
+			            JOptionPane.showMessageDialog(null, "Cập nhập không thành công");
+			            e2.printStackTrace();
+			        }
+				});
+		    }
+		});
+		
+		
+		bt_gui.addActionListener(new ActionListener() {
+	        @Override
+	        public void actionPerformed(ActionEvent e) {
+	            String message = tf_chat.getText();
+	            client.sendMessage(message);
+	            tf_chat.setText("");
+	            System.out.println("Đã gửi tin nhắn: " + message);
+	        }
+	    });
+		
+		
 		lb_message.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				CardLayout c1 = (CardLayout) (container.getLayout());
 				c1.show(container, "message");
 				menu.setSize(0, 750);
-				worker.execute(); // Khởi chạy SwingWorker ở đây
+				startListeningForMessages();
 			}
 		});
 		
+		
+		
+		
 		setTitle("STAYLEARN");
-		setSize(1280,750);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 		setLocationRelativeTo(null);
 		setResizable(false);
 	}
+	private void startListeningForMessages() {
+	    new Thread(() -> {
+	        try {
+	            String message;
+	            while ((message = client.readMessage()) != null) {
+	            	if (message.startsWith("CHAT:")) { 
+	                    final String chatMessage = message.substring(5).trim(); 
+	                    SwingUtilities.invokeLater(() -> appendToPane(textPane, chatMessage + "\n", Color.BLACK));
+	                }
+	            }
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }).start();
+	}
+	
+	private void appendToPane(JTextPane tp, String msg, Color c) {
+        StyledDocument doc = tp.getStyledDocument();
+        SimpleAttributeSet keyWord = new SimpleAttributeSet();
+        StyleConstants.setForeground(keyWord, c);
+        StyleConstants.setFontFamily(keyWord, "Monospaced");
+        StyleConstants.setFontSize(keyWord, 18);
+        StyleConstants.setLineSpacing(keyWord, 1.0f); 
+
+        try {
+            doc.insertString(doc.getLength(), msg, keyWord);
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+    }
+	
+	private Vector<Vector<String>> deserializeVector(String response) {
+	    System.out.println("Deserialize vector called with response: " + response); // Debug thêm
+	    Vector<Vector<String>> vector = new Vector<>();
+	    if (response == null || response.isEmpty()) {
+	        return vector;
+	    }
+	    String[] rows = response.split("\\|\\|\\|");
+	    for (String row : rows) {
+	        if (!row.isEmpty()) {
+	            Vector<String> innerVector = new Vector<>();
+	            String[] elements = row.split(";;;");
+	            for (String element : elements) {
+	                innerVector.add(element.trim());
+	            }
+	            vector.add(innerVector);
+	        }
+	    }
+	    System.out.println("Deserialized vector: " + vector); // Debug thêm
+	    return vector;
+	}
+
 }

@@ -11,7 +11,7 @@ import Design.Form_Login;
 import java.awt.Font;
 import javax.swing.SwingConstants;
 
-import Controller.DBController;
+import Controller.Client;
 
 import javax.swing.JTextField;
 import javax.swing.JButton;
@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 
 public class Register extends JPanel {
 
@@ -29,12 +30,13 @@ public class Register extends JPanel {
 	private JTextField tfuser;
 	private JPasswordField tfpass;
 	private JPasswordField tfconfirm;
-	Controller.DBController dbController = new Controller.DBController();
+	private Client client;
 	/**
 	 * Create the panel.
 	 */
 	
 	public Register() {
+		
 		setBackground(new Color(255, 255, 255));
 		setSize(400,300);
 		setLayout(null);
@@ -95,6 +97,7 @@ public class Register extends JPanel {
 		lblNewLabel.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 15));
 		lblNewLabel.setBounds(55, 256, 292, 26);
 		add(lblNewLabel);
+		client = Form_Login.runClient(tfuser.getText());
 		
 		btregister.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -103,8 +106,19 @@ public class Register extends JPanel {
 					return; 
 				}
 				else if (tfpass.getText().equals(tfconfirm.getText())) {
-					dbController.addUser(tfuser.getText(), new String(tfpass.getPassword()));
-	                JOptionPane.showMessageDialog(null, "Đăng ký thành công");
+					client.registerUser(tfuser.getText(), tfpass.getText());
+					try {
+						String message = client.readMessage();
+						if (message.equals("success")) {
+							JOptionPane.showMessageDialog(null, "Đăng ký thành công");
+						}
+						else {
+							JOptionPane.showMessageDialog(null, "Đăng ký không thành công");
+						}
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				} else {
 					JOptionPane.showMessageDialog(null, "Hai mật khẩu không giống nhau");
 				}

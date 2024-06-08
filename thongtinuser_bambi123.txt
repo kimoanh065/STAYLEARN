@@ -1,0 +1,10 @@
+Mã học viên: ST-02
+Họ và tên: Hyun
+Giới tính: Nam
+Ngày sinh: 2016-05-06
+Số điện thoại: 555
+Email: Kim
+Địa chỉ: DN
+Tên phụ huynh: Oanh
+Số điện thoại phụ huynh: 7777
+Ngày đến trung tâm: 2024-05-06
