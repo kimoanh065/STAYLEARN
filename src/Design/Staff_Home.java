@@ -125,6 +125,9 @@ public class Staff_Home extends JFrame {
 	        	DefaultTableModel model = (DefaultTableModel) table_2.getModel();
 	            client.sendtoServer("/loaddatatotable2", "");
 	            String response = client.readMessage();
+	            while(response.startsWith("[CHAT]")){
+	                response = client.readMessage();
+	            }
 	            System.out.println("Received data from server: ");  // In dữ liệu sau khi nhận
 
 	            Vector<Vector<String>> data = deserializeVector(response);
@@ -165,6 +168,9 @@ public class Staff_Home extends JFrame {
 			try {
 				client.sendtoServer("/loadDataStaff", tf_staffname.getText());
 				String response = client.readMessage();
+				while(response.startsWith("[CHAT]")){
+                    response = client.readMessage();
+                }
 		        String[] data = response.split(";;;");
 		        if(data.length >= 8) {
 		        	tf_manhanvien.setText(data[0]);
@@ -190,60 +196,6 @@ public class Staff_Home extends JFrame {
 		    }
 		});
 	}
-
-	//public static int countStudent() {
-	//	Connection conn = new Controller.DBController().getConnection();
-	//	String sql = "select count(*) from staylearn.student";
-	//	PreparedStatement stm;
-	//	int count = 0;
-	//	try {
-	//		stm = conn.prepareStatement(sql);
-	//		ResultSet rs = stm.executeQuery();
-	//		if (rs.next()) {
-	//			count = rs.getInt("count(*)");
-	//		}
-	//	} catch (SQLException e) {
-	//		// TODO Auto-generated catch block
-	//		e.printStackTrace();
-	//	}
-	//	return count;
-//	}
-
-//	public static int countStaff() {
-	//	Connection conn = new Controller.DBController().getConnection();
-	//	String sql = "select count(*) from staylearn.staff";
-	//	PreparedStatement stm;
-	//	int count = 0;
-	//	try {
-	//		stm = conn.prepareStatement(sql);
-	//		ResultSet rs = stm.executeQuery();
-	//		if (rs.next()) {
-	//			count = rs.getInt("count(*)");
-	//		}
-	//	} catch (SQLException e) {
-	//		// TODO Auto-generated catch block
-	//		e.printStackTrace();
-	//	}
-	//	return count;
-//	}
-
-	//public static int countClass() {
-	//	Connection conn = new Controller.DBController().getConnection();
-	//	String sql = "select count(*) from staylearn.class";
-	//	PreparedStatement stm;
-	//	int count = 0;
-	//	try {
-	//		stm = conn.prepareStatement(sql);
-	//		ResultSet rs = stm.executeQuery();
-	//		if (rs.next()) {
-	//			count = rs.getInt("count(*)");
-	//		}
-	//	} catch (SQLException e) {
-	//		// TODO Auto-generated catch block
-	//		e.printStackTrace();
-	//	}
-	//	return count;
-	//}
 
 	public Staff_Home() {
 		Container con = getContentPane();
@@ -868,6 +820,29 @@ public class Staff_Home extends JFrame {
 		lblNewLabel_3.setFont(new Font("Tahoma", Font.BOLD, 28));
 		lblNewLabel_3.setBounds(27, 22, 346, 46);
 		panel_1.add(lblNewLabel_3);
+		
+		JButton xuatxml = new JButton("Xuất File");
+		xuatxml.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				client.sendMessage("/xuatxml");
+				try {
+					String response = client.readMessage();
+					if (response.equals("Tạo file thành công")) {
+						JOptionPane.showMessageDialog(null, "Tạo file thành công");
+					}
+					else {
+						JOptionPane.showMessageDialog(null, "Tạo file không thành công");
+					}
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+			}
+		});
+		xuatxml.setFont(new Font("Tahoma", Font.BOLD, 15));
+		xuatxml.setBounds(860, 42, 123, 35);
+		panel_1.add(xuatxml);
 		loadDataToTable1();
 
 		JPanel lichday = new JPanel();
@@ -1179,8 +1154,8 @@ public class Staff_Home extends JFrame {
 	        try {
 	            String message;
 	            while ((message = client.readMessage()) != null) {
-	            	if (message.startsWith("CHAT:")) { // Kiểm tra nếu tin nhắn là từ chat
-	                    final String chatMessage = message.substring(5).trim(); // Bỏ tiền tố "CHAT:"
+	            	if (message.startsWith("CHAT:")) { 
+	                    final String chatMessage = message.substring(5).trim();
 	                    SwingUtilities.invokeLater(() -> appendToPane(textPane, chatMessage + "\n", Color.BLACK));
 	                }
 	            }

@@ -158,30 +158,6 @@ public class Client {
         }
     }
 
-    public void addFriend(String username, String friend) {
-        try {
-            if (aesKey != null) {
-                out.println(MaHoaAES.maHoa("/addfriend " + username + " " + friend, aesKey));
-            } else {
-                System.err.println("Khóa AES null, không thể mã hóa yêu cầu thêm bạn.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
-    public void getTopics(int from, int to) {
-        try {
-            if (aesKey != null) {
-                out.println(MaHoaAES.maHoa("/get_topics " + from + " " + to, aesKey));
-            } else {
-                System.err.println("Khóa AES null, không thể mã hóa yêu cầu lấy chủ đề.");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     public void sendtoServer(String command, String message) {
         try {
             if (aesKey != null) {
@@ -250,9 +226,5 @@ public class Client {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public void getTopicLearn(String topic) throws IOException {
-        sendtoServer("/get_topic_learn", topic);
     }
 }

@@ -17,6 +17,16 @@ import java.util.Date;
 import java.util.Vector;
 
 import javax.crypto.SecretKey;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 import Design.Form_Login;
 import Design.Staff_Home;
@@ -125,7 +135,11 @@ public class ClientHandler extends Thread {
                     }
                     String username = parts[6].trim();
                     xacnhanhocphi(tennguoinop, tenkhoahoc, sotien, hinhthuc, ngay, username);
-                } else if (gminput.startsWith("/countOffice")) {
+                } 
+                else if (gminput.startsWith("/xuatxml")) {
+                    exportToXML(aeskey, out);
+                }
+                else if (gminput.startsWith("/countOffice")) {
                     out.println(MaHoaAES.maHoa(String.valueOf(countOffice()), aeskey));
                     out.flush();
                 } else if (gminput.startsWith("/countStaff")) {
@@ -590,6 +604,58 @@ public class ClientHandler extends Thread {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+    
+    public static void exportToXML(SecretKey aeskey, PrintWriter out) {
+    	String sql = "SELECT stt, tennguoinop, tenkhoahoc, sotien, hinhthucthanhtoan, ngaythu FROM hocphi";
+        try (Connection conn = Server.getConnection();
+    		PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery()) {
+
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.newDocument();
+
+            // Root element
+            Element rootElement = doc.createElement("HocPhi");
+            doc.appendChild(rootElement);
+
+            while (rs.next()) {
+                // Record element
+                Element record = doc.createElement("Record");
+                rootElement.appendChild(record);
+
+                // Create elements
+                createElement(doc, record, "STT", rs.getString("stt"));
+                createElement(doc, record, "TenNguoiNop", rs.getString("tennguoinop"));
+                createElement(doc, record, "TenKhoaHoc", rs.getString("tenkhoahoc"));
+                createElement(doc, record, "SoTien", rs.getString("sotien"));
+                createElement(doc, record, "HinhThucThanhToan", rs.getString("hinhthucthanhtoan"));
+                createElement(doc, record, "NgayThu", rs.getString("ngaythu"));
+            }
+
+            // Write the content into an XML file
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            DOMSource source = new DOMSource(doc);
+            String xmlpath = "hocphi.xml";
+            StreamResult result = new StreamResult(new File(xmlpath));
+
+            transformer.transform(source, result);
+            String encryptedData = MaHoaAES.maHoa("Tạo file thành công", aeskey);
+            out.println(encryptedData);
+            out.flush();
+            System.out.println("Tạo file thành công");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static void createElement(Document doc, Element root, String name, String value) {
+        Element element = doc.createElement(name);
+        element.appendChild(doc.createTextNode(value));
+        root.appendChild(element);
     }
     
     public static void writeToFileStaff(String studentID, String fullName, String gender, String dob, String address,

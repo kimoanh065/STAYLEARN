@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<HocPhi>
+    <Record>
+        <STT>1</STT>
+        <TenNguoiNop>Đoàn Kim Oanh</TenNguoiNop>
+        <TenKhoaHoc>Khóa học cơ bản</TenKhoaHoc>
+        <SoTien>2000000</SoTien>
+        <HinhThucThanhToan>Chuyển Khoản</HinhThucThanhToan>
+        <NgayThu>2023-05-15</NgayThu>
+    </Record>
+    <Record>
+        <STT>2</STT>
+        <TenNguoiNop>Đào Xuân Sang</TenNguoiNop>
+        <TenKhoaHoc>Khóa học cơ bản</TenKhoaHoc>
+        <SoTien>2000000</SoTien>
+        <HinhThucThanhToan>Chuyển Khoản</HinhThucThanhToan>
+        <NgayThu>2024-06-20</NgayThu>
+    </Record>
+    <Record>
+        <STT>3</STT>
+        <TenNguoiNop>Võ Tiến Phúc</TenNguoiNop>
+        <TenKhoaHoc>Khóa học cơ bản</TenKhoaHoc>
+        <SoTien>1700000</SoTien>
+        <HinhThucThanhToan>Chuyển khoản</HinhThucThanhToan>
+        <NgayThu>2024-06-18</NgayThu>
+    </Record>
+    <Record>
+        <STT>4</STT>
+        <TenNguoiNop>Lê Anh Tú</TenNguoiNop>
+        <TenKhoaHoc>Khóa học nâng cao</TenKhoaHoc>
+        <SoTien>5400000</SoTien>
+        <HinhThucThanhToan>Chuyển khoản</HinhThucThanhToan>
+        <NgayThu>2024-06-21</NgayThu>
+    </Record>
+    <Record>
+        <STT>5</STT>
+        <TenNguoiNop>Hồ Thị Hải Ly</TenNguoiNop>
+        <TenKhoaHoc>Khóa học phổ thông</TenKhoaHoc>
+        <SoTien>3000000</SoTien>
+        <HinhThucThanhToan>Chuyển khoản</HinhThucThanhToan>
+        <NgayThu>2024-06-05</NgayThu>
+    </Record>
+    <Record>
+        <STT>6</STT>
+        <TenNguoiNop>Lê Trung Phát</TenNguoiNop>
+        <TenKhoaHoc>Khóa học cơ bản</TenKhoaHoc>
+        <SoTien>1700000</SoTien>
+        <HinhThucThanhToan>Chuyển khoản</HinhThucThanhToan>
+        <NgayThu>2024-06-11</NgayThu>
+    </Record>
+    <Record>
+        <STT>7</STT>
+        <TenNguoiNop>Trịnh Tuấn Anh</TenNguoiNop>
+        <TenKhoaHoc>Khóa học cơ bản</TenKhoaHoc>
+        <SoTien>1700000</SoTien>
+        <HinhThucThanhToan>Chuyển khoản</HinhThucThanhToan>
+        <NgayThu>2024-06-23</NgayThu>
+    </Record>
+    <Record>
+        <STT>8</STT>
+        <TenNguoiNop>Nguyễn Quốc Bảo</TenNguoiNop>
+        <TenKhoaHoc>Khóa học cơ bản</TenKhoaHoc>
+        <SoTien>1700000</SoTien>
+        <HinhThucThanhToan>Chuyển khoản</HinhThucThanhToan>
+        <NgayThu>2024-06-22</NgayThu>
+    </Record>
+    <Record>
+        <STT>9</STT>
+        <TenNguoiNop>Kim Oanh</TenNguoiNop>
+        <TenKhoaHoc>Khóa học phổ thông</TenKhoaHoc>
+        <SoTien>3000000</SoTien>
+        <HinhThucThanhToan>Tiền mặt</HinhThucThanhToan>
+        <NgayThu>2024-06-05</NgayThu>
+    </Record>
+    <Record>
+        <STT>11</STT>
+        <TenNguoiNop>Kim</TenNguoiNop>
+        <TenKhoaHoc>Khóa học cơ bản</TenKhoaHoc>
+        <SoTien>1700000</SoTien>
+        <HinhThucThanhToan>Chuyển khoản</HinhThucThanhToan>
+        <NgayThu>2024-06-07</NgayThu>
+    </Record>
+    <Record>
+        <STT>12</STT>
+        <TenNguoiNop>Kim Oanh</TenNguoiNop>
+        <TenKhoaHoc>Khóa học cơ bản</TenKhoaHoc>
+        <SoTien>1700000</SoTien>
+        <HinhThucThanhToan>Chuyển khoản</HinhThucThanhToan>
+        <NgayThu>2024-06-07</NgayThu>
+    </Record>
+</HocPhi>
